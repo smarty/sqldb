@@ -7,18 +7,18 @@ import (
 )
 
 type RetrySelector struct {
-	actual   Connection
+	inner    Selector
 	sleep    *clock.Sleeper
 	duration time.Duration
 }
 
 func NewRetrySelector(actual Connection, duration time.Duration) *RetrySelector {
-	return &RetrySelector{actual: actual, duration: duration}
+	return &RetrySelector{inner: actual, duration: duration}
 }
 
 func (this *RetrySelector) Select(binder Binder, statement string, parameters ...interface{}) error {
 	for {
-		if this.actual.Select(binder, statement, parameters...) == nil {
+		if this.inner.Select(binder, statement, parameters...) == nil {
 			return nil
 		}
 
