@@ -59,6 +59,18 @@ type FakeRetrySelector struct {
 	parameters []interface{}
 }
 
+func (this *FakeRetrySelector) Ping() error {
+	panic("Should not be called.")
+}
+
+func (this *FakeRetrySelector) BeginTransaction() (Transaction, error) {
+	panic("Should not be called.")
+}
+
+func (this *FakeRetrySelector) Close() error {
+	panic("Should not be called.")
+}
+
 func (this *FakeRetrySelector) Select(binder Binder, statement string, parameters ...interface{}) error {
 	if this.binder == nil {
 		this.binder = binder
@@ -84,4 +96,8 @@ func (this *FakeRetrySelector) Select(binder Binder, statement string, parameter
 	} else {
 		return nil
 	}
+}
+
+func (this *FakeRetrySelector) Execute(string, ...interface{}) (uint64, error) {
+	panic("Should not be called.")
 }
