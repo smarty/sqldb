@@ -16,7 +16,7 @@ func NewTransaction(actual sqldb.DriverTransaction, parameterDelimiter string, p
 	return &BindingTransaction{
 		actual:   actual,
 		executor: sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),
-		selector: NewSelectBinder(actual, panicOnBindError),
+		selector: NewBindingSelector(actual, panicOnBindError),
 	}
 }
 

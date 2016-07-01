@@ -17,7 +17,7 @@ func NewBindingConnection(actual sqldb.DriverConnection, parameterDelimiter stri
 	return &BindingConnection{
 		actual:             actual,
 		executor:           sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),
-		selector:           NewSelectBinder(actual, panicOnBindError),
+		selector:           NewBindingSelector(actual, panicOnBindError),
 		parameterDelimiter: parameterDelimiter,
 		panicOnBindError:   panicOnBindError,
 	}
