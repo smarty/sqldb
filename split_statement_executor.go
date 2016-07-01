@@ -14,11 +14,12 @@ func NewSplitStatementExecutor(actual Executor, delimiter string) *SplitStatemen
 	return &SplitStatementExecutor{actual: actual, delimiter: delimiter}
 }
 
-func (this *SplitStatementExecutor) Execute(statement string, parameters ...interface{}) error {
+func (this *SplitStatementExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	if argumentCount := strings.Count(statement, this.delimiter); argumentCount != len(parameters) {
-		return fmt.Errorf("Not enough arguments supplied for the statement. Expected: %d, received: %d", argumentCount, len(parameters))
+		return 0, fmt.Errorf("Not enough arguments supplied for the statement. Expected: %d, received: %d", argumentCount, len(parameters))
 	}
 
+	count := uint64(0)
 	index := 0
 	for _, statement = range strings.Split(statement, ";") {
 		if len(strings.TrimSpace(statement)) == 0 {
@@ -27,12 +28,14 @@ func (this *SplitStatementExecutor) Execute(statement string, parameters ...inte
 
 		statement += ";" // terminate the statement
 		indexOffset := strings.Count(statement, this.delimiter)
-		if _, err := this.actual.Execute(statement, parameters[index:index+indexOffset]...); err != nil {
-			return err
+		if affected, err := this.actual.Execute(statement, parameters[index:index+indexOffset]...); err != nil {
+			return 0, err
+		} else {
+			count += affected
 		}
 
 		index += indexOffset
 	}
 
-	return nil
+	return count, nil
 }
