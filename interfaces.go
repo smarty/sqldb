@@ -42,18 +42,17 @@ type (
 		BeginTransaction() (BindingTransaction, error)
 		Close() error
 		Executor
+		Selector
 		BindingSelector
 	}
 
 	BindingTransaction interface {
-		Commit() error
-		Rollback() error
-		Executor
+		Transaction
 		BindingSelector
 	}
 
 	BindingSelector interface {
-		Select(Binder, string, ...interface{}) error
+		BindSelect(Binder, string, ...interface{}) error
 	}
 
 	Binder func(Scanner) error

@@ -9,7 +9,7 @@ func NewBindingSelectorAdapter(selector Selector, panicOnBindError bool) *Bindin
 	return &BindingSelectorAdapter{selector: selector, panicOnBindError: panicOnBindError}
 }
 
-func (this *BindingSelectorAdapter) Select(binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingSelectorAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	result, err := this.selector.Select(statement, parameters...)
 	if err != nil {
 		return err

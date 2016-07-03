@@ -39,6 +39,9 @@ func (this *BindingConnectionPoolAdapter) Execute(statement string, parameters .
 	return this.executor.Execute(statement, parameters...)
 }
 
-func (this *BindingConnectionPoolAdapter) Select(binder Binder, statement string, parameters ...interface{}) error {
-	return this.selector.Select(binder, statement, parameters...)
+func (this *BindingConnectionPoolAdapter) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+	return this.actual.Select(statement, parameters...)
+}
+func (this *BindingConnectionPoolAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+	return this.selector.BindSelect(binder, statement, parameters...)
 }

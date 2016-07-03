@@ -58,7 +58,16 @@ func (this *BindingTransactionAdapterFixture) TestMultiStatementExecute() {
 func (this *BindingTransactionAdapterFixture) TestSelect() {
 	this.fakeInner.queryError = errors.New("")
 
-	err := this.transaction.Select(nil, "query")
+	_, err := this.transaction.Select("query")
+
+	this.So(err, should.Equal, this.fakeInner.queryError)
+	this.So(this.fakeInner.queries, should.Resemble, []string{"query"})
+}
+
+func (this *BindingTransactionAdapterFixture) TestBindSelect() {
+	this.fakeInner.queryError = errors.New("")
+
+	err := this.transaction.BindSelect(nil, "query")
 
 	this.So(err, should.Equal, this.fakeInner.queryError)
 	this.So(this.fakeInner.queries, should.Resemble, []string{"query"})

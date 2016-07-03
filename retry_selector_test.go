@@ -26,7 +26,7 @@ func (this *RetrySelectorFixture) Setup() {
 ///////////////////////////////////////////////////////////////
 
 func (this *RetrySelectorFixture) TestSelectWithoutErrors() {
-	err := this.selector.Select(nil, "statement", 1, 2, 3)
+	err := this.selector.BindSelect(nil, "statement", 1, 2, 3)
 
 	this.So(err, should.Equal, err)
 	this.So(this.fakeSelector.count, should.Equal, 1)
@@ -37,7 +37,7 @@ func (this *RetrySelectorFixture) TestSelectWithoutErrors() {
 func (this *RetrySelectorFixture) TestRetryUntilSuccess() {
 	this.fakeSelector.errorCount = 4
 
-	err := this.selector.Select(nil, "statement", 1, 2, 3)
+	err := this.selector.BindSelect(nil, "statement", 1, 2, 3)
 
 	this.So(err, should.Equal, err)
 	this.So(this.fakeSelector.count, should.Equal, 5) // last attempt is successful
@@ -71,7 +71,11 @@ func (this *FakeRetrySelector) Close() error {
 	panic("Should not be called.")
 }
 
-func (this *FakeRetrySelector) Select(binder Binder, statement string, parameters ...interface{}) error {
+func (this *FakeRetrySelector) Select(string, ...interface{}) (SelectResult, error) {
+	panic("Should not be called.")
+}
+
+func (this *FakeRetrySelector) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	if this.binder == nil {
 		this.binder = binder
 	} else {

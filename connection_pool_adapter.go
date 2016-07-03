@@ -13,7 +13,6 @@ func NewConnectionPoolAdapter(actual *sql.DB) *ConnectionPoolAdapter {
 func (this *ConnectionPoolAdapter) Ping() error {
 	return this.actual.Ping()
 }
-
 func (this *ConnectionPoolAdapter) BeginTransaction() (Transaction, error) {
 	if tx, err := this.actual.Begin(); err == nil {
 		return NewTransactionAdapter(tx), nil
@@ -21,7 +20,6 @@ func (this *ConnectionPoolAdapter) BeginTransaction() (Transaction, error) {
 		return nil, err
 	}
 }
-
 func (this *ConnectionPoolAdapter) Close() error {
 	return this.actual.Close()
 }

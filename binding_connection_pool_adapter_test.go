@@ -76,7 +76,16 @@ func (this *BindingConnectionPoolAdapterFixture) TestMultiStatementExecute() {
 func (this *BindingConnectionPoolAdapterFixture) TestSelect() {
 	this.fakeInner.queryError = errors.New("")
 
-	err := this.connection.Select(nil, "query")
+	_, err := this.connection.Select("query")
+
+	this.So(err, should.Equal, this.fakeInner.queryError)
+	this.So(this.fakeInner.queries, should.Resemble, []string{"query"})
+}
+
+func (this *BindingConnectionPoolAdapterFixture) TestBindSelect() {
+	this.fakeInner.queryError = errors.New("")
+
+	err := this.connection.BindSelect(nil, "query")
 
 	this.So(err, should.Equal, this.fakeInner.queryError)
 	this.So(this.fakeInner.queries, should.Resemble, []string{"query"})

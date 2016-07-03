@@ -13,7 +13,6 @@ func NewTransactionAdapter(actual *sql.Tx) *TransactionAdapter {
 func (this *TransactionAdapter) Commit() error {
 	return this.actual.Commit()
 }
-
 func (this *TransactionAdapter) Rollback() error {
 	return this.actual.Rollback()
 }
