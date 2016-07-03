@@ -11,13 +11,13 @@ import (
 type BindingTransactionFixture struct {
 	*gunit.Fixture
 
-	transaction *BindingTransaction
+	transaction *BindingTransactionAdapter
 	fakeInner   *FakeDriverTransaction
 }
 
 func (this *BindingTransactionFixture) Setup() {
 	this.fakeInner = &FakeDriverTransaction{}
-	this.transaction = NewDefaultTransaction(this.fakeInner)
+	this.transaction = NewDefaultBindingTransaction(this.fakeInner)
 }
 
 ///////////////////////////////////////////////////////////////

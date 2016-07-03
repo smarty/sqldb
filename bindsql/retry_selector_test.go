@@ -63,7 +63,7 @@ func (this *FakeRetrySelector) Ping() error {
 	panic("Should not be called.")
 }
 
-func (this *FakeRetrySelector) BeginTransaction() (Transaction, error) {
+func (this *FakeRetrySelector) BeginTransaction() (BindingTransaction, error) {
 	panic("Should not be called.")
 }
 

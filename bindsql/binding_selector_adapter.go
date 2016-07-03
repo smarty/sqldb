@@ -2,16 +2,16 @@ package bindsql
 
 import "github.com/smartystreets/sqldb"
 
-type BindingSelector struct {
+type BindingSelectorAdapter struct {
 	selector         sqldb.Selector
 	panicOnBindError bool
 }
 
-func NewBindingSelector(selector sqldb.Selector, panicOnBindError bool) *BindingSelector {
-	return &BindingSelector{selector: selector, panicOnBindError: panicOnBindError}
+func NewBindingSelectorAdapter(selector sqldb.Selector, panicOnBindError bool) *BindingSelectorAdapter {
+	return &BindingSelectorAdapter{selector: selector, panicOnBindError: panicOnBindError}
 }
 
-func (this *BindingSelector) Select(binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingSelectorAdapter) Select(binder Binder, statement string, parameters ...interface{}) error {
 	result, err := this.selector.Select(statement, parameters...)
 	if err != nil {
 		return err

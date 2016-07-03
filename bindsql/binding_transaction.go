@@ -2,35 +2,35 @@ package bindsql
 
 import "github.com/smartystreets/sqldb"
 
-type BindingTransaction struct {
+type BindingTransactionAdapter struct {
 	actual   sqldb.Transaction
 	executor Executor
 	selector Selector
 }
 
-func NewDefaultTransaction(actual sqldb.Transaction) *BindingTransaction {
-	return NewTransaction(actual, "?", true)
+func NewDefaultBindingTransaction(actual sqldb.Transaction) *BindingTransactionAdapter {
+	return NewBindingTransaction(actual, "?", true)
 }
 
-func NewTransaction(actual sqldb.Transaction, parameterDelimiter string, panicOnBindError bool) *BindingTransaction {
-	return &BindingTransaction{
+func NewBindingTransaction(actual sqldb.Transaction, parameterDelimiter string, panicOnBindError bool) *BindingTransactionAdapter {
+	return &BindingTransactionAdapter{
 		actual:   actual,
 		executor: sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),
-		selector: NewBindingSelector(actual, panicOnBindError),
+		selector: NewBindingSelectorAdapter(actual, panicOnBindError),
 	}
 }
 
-func (this *BindingTransaction) Commit() error {
+func (this *BindingTransactionAdapter) Commit() error {
 	return this.actual.Commit()
 }
-func (this *BindingTransaction) Rollback() error {
+func (this *BindingTransactionAdapter) Rollback() error {
 	return this.actual.Rollback()
 }
 
-func (this *BindingTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *BindingTransactionAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.executor.Execute(statement, parameters...)
 }
 
-func (this *BindingTransaction) Select(binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingTransactionAdapter) Select(binder Binder, statement string, parameters ...interface{}) error {
 	return this.selector.Select(binder, statement, parameters...)
 }

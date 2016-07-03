@@ -8,23 +8,23 @@ import (
 	"github.com/smartystreets/sqldb"
 )
 
-type BindingSelectorFixture struct {
+type BindingSelectorAdapterFixture struct {
 	*gunit.Fixture
 
 	fakeResult        *FakeResult
 	fakeInnerSelector *FakeSelector
-	selector          *BindingSelector
+	selector          *BindingSelectorAdapter
 }
 
-func (this *BindingSelectorFixture) Setup() {
+func (this *BindingSelectorAdapterFixture) Setup() {
 	this.fakeResult = &FakeResult{}
 	this.fakeInnerSelector = &FakeSelector{selectResult: this.fakeResult}
-	this.selector = NewBindingSelector(this.fakeInnerSelector, false)
+	this.selector = NewBindingSelectorAdapter(this.fakeInnerSelector, false)
 }
 
 ///////////////////////////////////////////////////////////////
 
-func (this *BindingSelectorFixture) TestFailedSelectReturnsError() {
+func (this *BindingSelectorAdapterFixture) TestFailedSelectReturnsError() {
 	this.fakeInnerSelector.selectError = errors.New("")
 
 	err := this.selector.Select(nil, "query", 1, 2, 3)
@@ -35,7 +35,7 @@ func (this *BindingSelectorFixture) TestFailedSelectReturnsError() {
 	this.So(this.fakeInnerSelector.parameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *BindingSelectorFixture) TestEmptyResult() {
+func (this *BindingSelectorAdapterFixture) TestEmptyResult() {
 	err := this.selector.Select(nil, "query", 1, 2, 3)
 	this.So(err, should.BeNil)
 	this.So(this.fakeInnerSelector.selects, should.Equal, 1)
@@ -43,7 +43,7 @@ func (this *BindingSelectorFixture) TestEmptyResult() {
 	this.So(this.fakeResult.closeCalls, should.Equal, 1)
 }
 
-func (this *BindingSelectorFixture) TestResultErrorClosesAndReturnsError() {
+func (this *BindingSelectorAdapterFixture) TestResultErrorClosesAndReturnsError() {
 	this.fakeResult.iterations = 1
 	this.fakeResult.errError = errors.New("")
 
@@ -55,7 +55,7 @@ func (this *BindingSelectorFixture) TestResultErrorClosesAndReturnsError() {
 	this.So(this.fakeResult.closeCalls, should.Equal, 1)
 }
 
-func (this *BindingSelectorFixture) TestScanErrorClosesAndReturnsError() {
+func (this *BindingSelectorAdapterFixture) TestScanErrorClosesAndReturnsError() {
 	this.fakeResult.iterations = 1
 	this.fakeResult.scanError = errors.New("")
 
@@ -71,7 +71,7 @@ func (this *BindingSelectorFixture) TestScanErrorClosesAndReturnsError() {
 	this.So(this.fakeResult.closeCalls, should.Equal, 1)
 }
 
-func (this *BindingSelectorFixture) TestScanErrorClosesAndPanicsWhenConfigured() {
+func (this *BindingSelectorAdapterFixture) TestScanErrorClosesAndPanicsWhenConfigured() {
 	this.selector.panicOnBindError = true
 	this.fakeResult.iterations = 1
 	this.fakeResult.scanError = errors.New("")

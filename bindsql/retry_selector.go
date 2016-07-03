@@ -12,7 +12,7 @@ type RetrySelector struct {
 	duration time.Duration
 }
 
-func NewRetrySelector(actual Connection, duration time.Duration) *RetrySelector {
+func NewRetrySelector(actual BindingConnection, duration time.Duration) *RetrySelector {
 	return &RetrySelector{inner: actual, duration: duration}
 }
 

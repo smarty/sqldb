@@ -1,15 +1,15 @@
 package bindsql
 
 type (
-	Connection interface {
+	BindingConnection interface {
 		Ping() error
-		BeginTransaction() (Transaction, error)
+		BeginTransaction() (BindingTransaction, error)
 		Close() error
 		Executor
 		Selector
 	}
 
-	Transaction interface {
+	BindingTransaction interface {
 		Commit() error
 		Rollback() error
 		Executor

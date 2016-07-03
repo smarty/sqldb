@@ -9,21 +9,21 @@ import (
 	"github.com/smartystreets/sqldb"
 )
 
-type BindingConnectionFixture struct {
+type BindingConnectionAdapterFixture struct {
 	*gunit.Fixture
 
-	connection *BindingConnection
+	connection *BindingConnectionAdapter
 	fakeInner  *FakeDriverConnection
 }
 
-func (this *BindingConnectionFixture) Setup() {
+func (this *BindingConnectionAdapterFixture) Setup() {
 	this.fakeInner = &FakeDriverConnection{}
-	this.connection = NewDefaultConnection(this.fakeInner)
+	this.connection = NewDefaultBindingConnection(this.fakeInner)
 }
 
 ///////////////////////////////////////////////////////////////
 
-func (this *BindingConnectionFixture) TestPing() {
+func (this *BindingConnectionAdapterFixture) TestPing() {
 	this.fakeInner.pingError = errors.New("")
 
 	err := this.connection.Ping()
@@ -32,15 +32,15 @@ func (this *BindingConnectionFixture) TestPing() {
 	this.So(this.fakeInner.ping, should.Equal, 1)
 }
 
-func (this *BindingConnectionFixture) TestBeginTransaction() {
+func (this *BindingConnectionAdapterFixture) TestBeginTransaction() {
 	transaction, err := this.connection.BeginTransaction()
 
 	this.So(transaction, should.NotBeNil)
-	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&BindingTransaction{}))
+	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&BindingTransactionAdapter{}))
 	this.So(err, should.BeNil)
 }
 
-func (this *BindingConnectionFixture) TestBeginFailedTransaction() {
+func (this *BindingConnectionAdapterFixture) TestBeginFailedTransaction() {
 	this.fakeInner.beginError = errors.New("")
 
 	transaction, err := this.connection.BeginTransaction()
@@ -49,7 +49,7 @@ func (this *BindingConnectionFixture) TestBeginFailedTransaction() {
 	this.So(err, should.Equal, this.fakeInner.beginError)
 }
 
-func (this *BindingConnectionFixture) TestClose() {
+func (this *BindingConnectionAdapterFixture) TestClose() {
 	this.fakeInner.closeError = errors.New("")
 
 	err := this.connection.Close()
@@ -58,7 +58,7 @@ func (this *BindingConnectionFixture) TestClose() {
 	this.So(this.fakeInner.close, should.Equal, 1)
 }
 
-func (this *BindingConnectionFixture) TestExecute() {
+func (this *BindingConnectionAdapterFixture) TestExecute() {
 	this.fakeInner.executeError = errors.New("")
 
 	_, err := this.connection.Execute("statement;")
@@ -67,14 +67,14 @@ func (this *BindingConnectionFixture) TestExecute() {
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement;"})
 }
 
-func (this *BindingConnectionFixture) TestMultiStatementExecute() {
+func (this *BindingConnectionAdapterFixture) TestMultiStatementExecute() {
 	_, err := this.connection.Execute("statement1;statement2;")
 
 	this.So(err, should.BeNil)
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement1;", "statement2;"})
 }
 
-func (this *BindingConnectionFixture) TestSelect() {
+func (this *BindingConnectionAdapterFixture) TestSelect() {
 	this.fakeInner.queryError = errors.New("")
 
 	err := this.connection.Select(nil, "query")
