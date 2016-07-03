@@ -35,3 +35,26 @@ type (
 		Scan(...interface{}) error
 	}
 )
+
+type (
+	BindingConnectionPool interface {
+		Ping() error
+		BeginTransaction() (BindingTransaction, error)
+		Close() error
+		Executor
+		BindingSelector
+	}
+
+	BindingTransaction interface {
+		Commit() error
+		Rollback() error
+		Executor
+		BindingSelector
+	}
+
+	BindingSelector interface {
+		Select(Binder, string, ...interface{}) error
+	}
+
+	Binder func(Scanner) error
+)

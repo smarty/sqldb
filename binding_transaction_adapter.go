@@ -1,21 +1,19 @@
-package bindsql
-
-import "github.com/smartystreets/sqldb"
+package sqldb
 
 type BindingTransactionAdapter struct {
-	actual   sqldb.Transaction
+	actual   Transaction
 	executor Executor
-	selector Selector
+	selector BindingSelector
 }
 
-func NewDefaultBindingTransaction(actual sqldb.Transaction) *BindingTransactionAdapter {
-	return NewBindingTransaction(actual, "?", true)
+func NewDefaultBindingTransactionAdapter(actual Transaction) *BindingTransactionAdapter {
+	return NewBindingTransactionAdapter(actual, "?", true)
 }
 
-func NewBindingTransaction(actual sqldb.Transaction, parameterDelimiter string, panicOnBindError bool) *BindingTransactionAdapter {
+func NewBindingTransactionAdapter(actual Transaction, parameterDelimiter string, panicOnBindError bool) *BindingTransactionAdapter {
 	return &BindingTransactionAdapter{
 		actual:   actual,
-		executor: sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),
+		executor: NewSplitStatementExecutor(actual, parameterDelimiter),
 		selector: NewBindingSelectorAdapter(actual, panicOnBindError),
 	}
 }

@@ -1,13 +1,11 @@
-package bindsql
-
-import "github.com/smartystreets/sqldb"
+package sqldb
 
 type BindingSelectorAdapter struct {
-	selector         sqldb.Selector
+	selector         Selector
 	panicOnBindError bool
 }
 
-func NewBindingSelectorAdapter(selector sqldb.Selector, panicOnBindError bool) *BindingSelectorAdapter {
+func NewBindingSelectorAdapter(selector Selector, panicOnBindError bool) *BindingSelectorAdapter {
 	return &BindingSelectorAdapter{selector: selector, panicOnBindError: panicOnBindError}
 }
 

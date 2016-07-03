@@ -1,11 +1,10 @@
-package bindsql
+package sqldb
 
 import (
 	"errors"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
-	"github.com/smartystreets/sqldb"
 )
 
 type BindingSelectorAdapterFixture struct {
@@ -93,7 +92,7 @@ type FakeSelector struct {
 	selectError  error
 }
 
-func (this *FakeSelector) Select(statement string, parameters ...interface{}) (sqldb.SelectResult, error) {
+func (this *FakeSelector) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selects++
 	this.statement = statement
 	this.parameters = parameters

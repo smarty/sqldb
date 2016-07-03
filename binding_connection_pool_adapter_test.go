@@ -1,4 +1,4 @@
-package bindsql
+package sqldb
 
 import (
 	"errors"
@@ -6,24 +6,23 @@ import (
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
-	"github.com/smartystreets/sqldb"
 )
 
-type BindingConnectionAdapterFixture struct {
+type BindingConnectionPoolAdapterFixture struct {
 	*gunit.Fixture
 
-	connection *BindingConnectionAdapter
+	connection *BindingConnectionPoolAdapter
 	fakeInner  *FakeDriverConnection
 }
 
-func (this *BindingConnectionAdapterFixture) Setup() {
+func (this *BindingConnectionPoolAdapterFixture) Setup() {
 	this.fakeInner = &FakeDriverConnection{}
-	this.connection = NewDefaultBindingConnection(this.fakeInner)
+	this.connection = NewDefaultBindingConnectionPoolAdapter(this.fakeInner)
 }
 
 ///////////////////////////////////////////////////////////////
 
-func (this *BindingConnectionAdapterFixture) TestPing() {
+func (this *BindingConnectionPoolAdapterFixture) TestPing() {
 	this.fakeInner.pingError = errors.New("")
 
 	err := this.connection.Ping()
@@ -32,7 +31,7 @@ func (this *BindingConnectionAdapterFixture) TestPing() {
 	this.So(this.fakeInner.ping, should.Equal, 1)
 }
 
-func (this *BindingConnectionAdapterFixture) TestBeginTransaction() {
+func (this *BindingConnectionPoolAdapterFixture) TestBeginTransaction() {
 	transaction, err := this.connection.BeginTransaction()
 
 	this.So(transaction, should.NotBeNil)
@@ -40,7 +39,7 @@ func (this *BindingConnectionAdapterFixture) TestBeginTransaction() {
 	this.So(err, should.BeNil)
 }
 
-func (this *BindingConnectionAdapterFixture) TestBeginFailedTransaction() {
+func (this *BindingConnectionPoolAdapterFixture) TestBeginFailedTransaction() {
 	this.fakeInner.beginError = errors.New("")
 
 	transaction, err := this.connection.BeginTransaction()
@@ -49,7 +48,7 @@ func (this *BindingConnectionAdapterFixture) TestBeginFailedTransaction() {
 	this.So(err, should.Equal, this.fakeInner.beginError)
 }
 
-func (this *BindingConnectionAdapterFixture) TestClose() {
+func (this *BindingConnectionPoolAdapterFixture) TestClose() {
 	this.fakeInner.closeError = errors.New("")
 
 	err := this.connection.Close()
@@ -58,7 +57,7 @@ func (this *BindingConnectionAdapterFixture) TestClose() {
 	this.So(this.fakeInner.close, should.Equal, 1)
 }
 
-func (this *BindingConnectionAdapterFixture) TestExecute() {
+func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 	this.fakeInner.executeError = errors.New("")
 
 	_, err := this.connection.Execute("statement;")
@@ -67,14 +66,14 @@ func (this *BindingConnectionAdapterFixture) TestExecute() {
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement;"})
 }
 
-func (this *BindingConnectionAdapterFixture) TestMultiStatementExecute() {
+func (this *BindingConnectionPoolAdapterFixture) TestMultiStatementExecute() {
 	_, err := this.connection.Execute("statement1;statement2;")
 
 	this.So(err, should.BeNil)
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement1;", "statement2;"})
 }
 
-func (this *BindingConnectionAdapterFixture) TestSelect() {
+func (this *BindingConnectionPoolAdapterFixture) TestSelect() {
 	this.fakeInner.queryError = errors.New("")
 
 	err := this.connection.Select(nil, "query")
@@ -105,7 +104,7 @@ func (this *FakeDriverConnection) Ping() error {
 	return this.pingError
 }
 
-func (this *FakeDriverConnection) BeginTransaction() (sqldb.Transaction, error) {
+func (this *FakeDriverConnection) BeginTransaction() (Transaction, error) {
 	this.begin++
 	return nil, this.beginError
 }
@@ -120,7 +119,7 @@ func (this *FakeDriverConnection) Execute(statement string, parameters ...interf
 	return 0, this.executeError
 }
 
-func (this *FakeDriverConnection) Select(query string, parameters ...interface{}) (sqldb.SelectResult, error) {
+func (this *FakeDriverConnection) Select(query string, parameters ...interface{}) (SelectResult, error) {
 	this.queries = append(this.queries, query)
 	return nil, this.queryError
 }

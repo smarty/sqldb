@@ -1,28 +1,27 @@
-package bindsql
+package sqldb
 
 import (
 	"errors"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
-	"github.com/smartystreets/sqldb"
 )
 
-type BindingTransactionFixture struct {
+type BindingTransactionAdapterFixture struct {
 	*gunit.Fixture
 
 	transaction *BindingTransactionAdapter
 	fakeInner   *FakeDriverTransaction
 }
 
-func (this *BindingTransactionFixture) Setup() {
+func (this *BindingTransactionAdapterFixture) Setup() {
 	this.fakeInner = &FakeDriverTransaction{}
-	this.transaction = NewDefaultBindingTransaction(this.fakeInner)
+	this.transaction = NewDefaultBindingTransactionAdapter(this.fakeInner)
 }
 
 ///////////////////////////////////////////////////////////////
 
-func (this *BindingTransactionFixture) TestCommit() {
+func (this *BindingTransactionAdapterFixture) TestCommit() {
 	this.fakeInner.commitError = errors.New("")
 
 	err := this.transaction.Commit()
@@ -31,7 +30,7 @@ func (this *BindingTransactionFixture) TestCommit() {
 	this.So(this.fakeInner.commit, should.Equal, 1)
 }
 
-func (this *BindingTransactionFixture) TestRollback() {
+func (this *BindingTransactionAdapterFixture) TestRollback() {
 	this.fakeInner.rollbackError = errors.New("")
 
 	err := this.transaction.Rollback()
@@ -40,7 +39,7 @@ func (this *BindingTransactionFixture) TestRollback() {
 	this.So(this.fakeInner.rollback, should.Equal, 1)
 }
 
-func (this *BindingTransactionFixture) TestExecute() {
+func (this *BindingTransactionAdapterFixture) TestExecute() {
 	this.fakeInner.executeError = errors.New("")
 
 	_, err := this.transaction.Execute("statement;")
@@ -49,14 +48,14 @@ func (this *BindingTransactionFixture) TestExecute() {
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement;"})
 }
 
-func (this *BindingTransactionFixture) TestMultiStatementExecute() {
+func (this *BindingTransactionAdapterFixture) TestMultiStatementExecute() {
 	_, err := this.transaction.Execute("statement1;statement2;")
 
 	this.So(err, should.BeNil)
 	this.So(this.fakeInner.executes, should.Resemble, []string{"statement1;", "statement2;"})
 }
 
-func (this *BindingTransactionFixture) TestSelect() {
+func (this *BindingTransactionAdapterFixture) TestSelect() {
 	this.fakeInner.queryError = errors.New("")
 
 	err := this.transaction.Select(nil, "query")
@@ -95,7 +94,7 @@ func (this *FakeDriverTransaction) Execute(statement string, parameters ...inter
 	return 0, this.executeError
 }
 
-func (this *FakeDriverTransaction) Select(query string, parameters ...interface{}) (sqldb.SelectResult, error) {
+func (this *FakeDriverTransaction) Select(query string, parameters ...interface{}) (SelectResult, error) {
 	this.queries = append(this.queries, query)
 	return nil, this.queryError
 }

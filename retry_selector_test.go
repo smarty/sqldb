@@ -1,4 +1,4 @@
-package bindsql
+package sqldb
 
 import (
 	"errors"

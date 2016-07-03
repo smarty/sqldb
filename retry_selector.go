@@ -1,4 +1,4 @@
-package bindsql
+package sqldb
 
 import (
 	"time"
@@ -7,12 +7,12 @@ import (
 )
 
 type RetrySelector struct {
-	inner    Selector
+	inner    BindingSelector
 	sleep    *clock.Sleeper
 	duration time.Duration
 }
 
-func NewRetrySelector(actual BindingConnection, duration time.Duration) *RetrySelector {
+func NewRetrySelector(actual BindingConnectionPool, duration time.Duration) *RetrySelector {
 	return &RetrySelector{inner: actual, duration: duration}
 }
 
