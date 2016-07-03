@@ -105,7 +105,7 @@ func (this *FakeDriverConnection) Ping() error {
 	return this.pingError
 }
 
-func (this *FakeDriverConnection) BeginTransaction() (sqldb.DriverTransaction, error) {
+func (this *FakeDriverConnection) BeginTransaction() (sqldb.Transaction, error) {
 	this.begin++
 	return nil, this.beginError
 }

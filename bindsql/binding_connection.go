@@ -3,17 +3,17 @@ package bindsql
 import "github.com/smartystreets/sqldb"
 
 type BindingConnection struct {
-	actual             sqldb.DriverConnection
+	actual             sqldb.ConnectionPool
 	executor           Executor
 	selector           Selector
 	parameterDelimiter string
 	panicOnBindError   bool
 }
 
-func NewDefaultConnection(actual sqldb.DriverConnection) *BindingConnection {
+func NewDefaultConnection(actual sqldb.ConnectionPool) *BindingConnection {
 	return NewBindingConnection(actual, "?", true)
 }
-func NewBindingConnection(actual sqldb.DriverConnection, parameterDelimiter string, panicOnBindError bool) *BindingConnection {
+func NewBindingConnection(actual sqldb.ConnectionPool, parameterDelimiter string, panicOnBindError bool) *BindingConnection {
 	return &BindingConnection{
 		actual:             actual,
 		executor:           sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),

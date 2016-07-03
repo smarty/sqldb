@@ -3,16 +3,16 @@ package bindsql
 import "github.com/smartystreets/sqldb"
 
 type BindingTransaction struct {
-	actual   sqldb.DriverTransaction
+	actual   sqldb.Transaction
 	executor Executor
 	selector Selector
 }
 
-func NewDefaultTransaction(actual sqldb.DriverTransaction) *BindingTransaction {
+func NewDefaultTransaction(actual sqldb.Transaction) *BindingTransaction {
 	return NewTransaction(actual, "?", true)
 }
 
-func NewTransaction(actual sqldb.DriverTransaction, parameterDelimiter string, panicOnBindError bool) *BindingTransaction {
+func NewTransaction(actual sqldb.Transaction, parameterDelimiter string, panicOnBindError bool) *BindingTransaction {
 	return &BindingTransaction{
 		actual:   actual,
 		executor: sqldb.NewSplitStatementExecutor(actual, parameterDelimiter),

@@ -1,15 +1,15 @@
 package sqldb
 
 type (
-	DriverConnection interface {
+	ConnectionPool interface {
 		Ping() error
-		BeginTransaction() (DriverTransaction, error)
+		BeginTransaction() (Transaction, error)
 		Close() error
 		Executor
 		Selector
 	}
 
-	DriverTransaction interface {
+	Transaction interface {
 		Commit() error
 		Rollback() error
 		Executor
