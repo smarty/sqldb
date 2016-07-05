@@ -46,7 +46,6 @@ type (
 	}
 
 	BindingTransaction interface {
-		Transaction
 		BindingSelector
 	}
 
