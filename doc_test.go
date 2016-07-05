@@ -7,11 +7,11 @@ import "strings"
 
 ///////////////////////////////////////////////////////////////
 
-type FakeInnerConnectionPool struct {
+type FakeConnectionPool struct {
 	pingCalls         int
 	pingError         error
 	transactionCalls  int
-	transaction       *FakeInnerTransaction
+	transaction       *FakeTransaction
 	transactionError  error
 	closeCalls        int
 	closeError        error
@@ -27,29 +27,29 @@ type FakeInnerConnectionPool struct {
 	executeError      error
 }
 
-func (this *FakeInnerConnectionPool) Ping() error {
+func (this *FakeConnectionPool) Ping() error {
 	this.pingCalls++
 	return this.pingError
 }
 
-func (this *FakeInnerConnectionPool) BeginTransaction() (Transaction, error) {
+func (this *FakeConnectionPool) BeginTransaction() (Transaction, error) {
 	this.transactionCalls++
 	return this.transaction, this.transactionError
 }
 
-func (this *FakeInnerConnectionPool) Close() error {
+func (this *FakeConnectionPool) Close() error {
 	this.closeCalls++
 	return this.closeError
 }
 
-func (this *FakeInnerConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
 
-func (this *FakeInnerConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+func (this *FakeConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selectCalls++
 	this.selectStatement = statement
 	this.selectParameters = parameters
@@ -58,7 +58,7 @@ func (this *FakeInnerConnectionPool) Select(statement string, parameters ...inte
 
 ///////////////////////////////////////////////////////////////
 
-type FakeInnerTransaction struct {
+type FakeTransaction struct {
 	commitCalls       int
 	commitError       error
 	rollbackCalls     int
@@ -75,24 +75,24 @@ type FakeInnerTransaction struct {
 	executeError      error
 }
 
-func (this *FakeInnerTransaction) Commit() error {
+func (this *FakeTransaction) Commit() error {
 	this.commitCalls++
 	return this.commitError
 }
 
-func (this *FakeInnerTransaction) Rollback() error {
+func (this *FakeTransaction) Rollback() error {
 	this.rollbackCalls++
 	return this.rollbackError
 }
 
-func (this *FakeInnerTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
 
-func (this *FakeInnerTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+func (this *FakeTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selectCalls++
 	this.selectStatement = statement
 	this.selectParameters = parameters

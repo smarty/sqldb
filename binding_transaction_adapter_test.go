@@ -10,12 +10,12 @@ import (
 type BindingTransactionAdapterFixture struct {
 	*gunit.Fixture
 
-	inner       *FakeInnerTransaction
+	inner       *FakeTransaction
 	transaction *BindingTransactionAdapter
 }
 
 func (this *BindingTransactionAdapterFixture) Setup() {
-	this.inner = &FakeInnerTransaction{}
+	this.inner = &FakeTransaction{}
 	this.transaction = NewBindingTransactionAdapter(this.inner, false)
 }
 

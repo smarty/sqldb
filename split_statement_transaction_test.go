@@ -10,12 +10,12 @@ import (
 type SplitStatementTransactionFixture struct {
 	*gunit.Fixture
 
-	inner       *FakeInnerTransaction
+	inner       *FakeTransaction
 	transaction *SplitStatementTransaction
 }
 
 func (this *SplitStatementTransactionFixture) Setup() {
-	this.inner = &FakeInnerTransaction{}
+	this.inner = &FakeTransaction{}
 	this.transaction = NewSplitStatementTransaction(this.inner, "?")
 }
 

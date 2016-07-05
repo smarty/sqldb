@@ -11,12 +11,12 @@ import (
 type SplitStatementConnectionPoolFixture struct {
 	*gunit.Fixture
 
-	inner *FakeInnerConnectionPool
+	inner *FakeConnectionPool
 	pool  *SplitStatementConnectionPool
 }
 
 func (this *SplitStatementConnectionPoolFixture) Setup() {
-	this.inner = &FakeInnerConnectionPool{}
+	this.inner = &FakeConnectionPool{}
 	this.pool = NewSplitStatemenConnectionPool(this.inner, "?")
 }
 
@@ -42,7 +42,7 @@ func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionFails() {
 }
 
 func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionSucceeds() {
-	this.inner.transaction = &FakeInnerTransaction{}
+	this.inner.transaction = &FakeTransaction{}
 
 	transaction, err := this.pool.BeginTransaction()
 
