@@ -63,8 +63,8 @@ func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 
 	affected, err := this.connection.Execute("statement")
 
-	this.So(err, should.Equal, this.inner.executeError)
 	this.So(affected, should.Equal, this.inner.executeResult)
+	this.So(err, should.Equal, this.inner.executeError)
 	this.So(this.inner.executeStatement, should.Equal, "statement")
 	this.So(this.inner.executeCalls, should.Equal, 1)
 }
@@ -75,6 +75,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestBindSelect() {
 	err := this.connection.BindSelect(nil, "query", 1, 2, 3)
 
 	this.So(err, should.Equal, this.inner.selectError)
+	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "query")
 	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
 }

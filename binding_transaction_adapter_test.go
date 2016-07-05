@@ -54,9 +54,10 @@ func (this *BindingTransactionAdapterFixture) TestExecute() {
 func (this *BindingTransactionAdapterFixture) TestBindSelect() {
 	this.inner.selectError = errors.New("")
 
-	err := this.transaction.BindSelect(nil, "query")
+	err := this.transaction.BindSelect(nil, "query", 1, 2, 3)
 
 	this.So(err, should.Equal, this.inner.selectError)
 	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "query")
+	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
 }
