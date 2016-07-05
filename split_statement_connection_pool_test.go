@@ -1,0 +1,85 @@
+package sqldb
+
+import (
+	"errors"
+
+	"github.com/smartystreets/assertions/should"
+	"github.com/smartystreets/gunit"
+	"reflect"
+)
+
+type SplitStatementConnectionPoolFixture struct {
+	*gunit.Fixture
+
+	inner *FakeInnerConnectionPool
+	pool  *SplitStatementConnectionPool
+}
+
+func (this *SplitStatementConnectionPoolFixture) Setup() {
+	this.inner = &FakeInnerConnectionPool{}
+	this.pool = NewSplitStatemenConnectionPool(this.inner, "?")
+}
+
+///////////////////////////////////////////////////////////////
+
+func (this *SplitStatementConnectionPoolFixture) TestPing() {
+	this.inner.pingError = errors.New("")
+
+	err := this.pool.Ping()
+
+	this.So(err, should.Equal, this.inner.pingError)
+	this.So(this.inner.pingCalls, should.Equal, 1)
+}
+
+func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionFails() {
+	this.inner.transactionError = errors.New("")
+
+	transaction, err := this.pool.BeginTransaction()
+
+	this.So(transaction, should.BeNil)
+	this.So(err, should.Equal, this.inner.transactionError)
+	this.So(this.inner.transactionCalls, should.Equal, 1)
+}
+
+func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionSucceeds() {
+	this.inner.transaction = &FakeInnerTransaction{}
+
+	transaction, err := this.pool.BeginTransaction()
+
+	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&SplitStatementTransaction{}))
+	this.So(err, should.BeNil)
+	this.So(this.inner.transactionCalls, should.Equal, 1)
+}
+
+func (this *SplitStatementConnectionPoolFixture) TestClose() {
+	this.inner.closeError = errors.New("")
+
+	err := this.pool.Close()
+
+	this.So(err, should.Equal, this.inner.closeError)
+	this.So(this.inner.closeCalls, should.Equal, 1)
+}
+
+func (this *SplitStatementConnectionPoolFixture) TestSelect() {
+	this.inner.selectError = errors.New("")
+	this.inner.selectResult = &FakeSelectResult{}
+
+	result, err := this.pool.Select("query", 1, 2, 3)
+
+	this.So(result, should.Equal, this.inner.selectResult)
+	this.So(err, should.Equal, this.inner.selectError)
+	this.So(this.inner.selectCalls, should.Equal, 1)
+	this.So(this.inner.selectStatement, should.Equal, "query")
+	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+}
+
+func (this *SplitStatementConnectionPoolFixture) TestExecute() {
+	this.inner.executeResult = 5
+
+	affected, err := this.pool.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
+
+	this.So(affected, should.Equal, 10)
+	this.So(err, should.BeNil)
+	this.So(this.inner.executeCalls, should.Equal, 2)
+	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
+}
