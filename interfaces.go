@@ -42,7 +42,6 @@ type (
 		BeginTransaction() (BindingTransaction, error)
 		Close() error
 		Executor
-		Selector
 		BindingSelector
 	}
 
