@@ -46,6 +46,9 @@ type (
 	}
 
 	BindingTransaction interface {
+		Commit() error
+		Rollback() error
+		Executor
 		BindingSelector
 	}
 
