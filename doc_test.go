@@ -152,3 +152,103 @@ func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (
 
 	return this.affected, nil
 }
+
+///////////////////////////////////////////////////////////////
+
+type FakeBindingConnectionPool struct {
+	pingCalls         int
+	pingError         error
+	transactionCalls  int
+	transaction       *FakeBindingTransaction
+	transactionError  error
+	closeCalls        int
+	closeError        error
+	selectCalls       int
+	selectBinder      Binder
+	selectStatement   string
+	selectParameters  []interface{}
+	selectResult      *FakeSelectResult
+	selectError       error
+	executeCalls      int
+	executeStatement  string
+	executeParameters []interface{}
+	executeResult     uint64
+	executeError      error
+}
+
+func (this *FakeBindingConnectionPool) Ping() error {
+	this.pingCalls++
+	return this.pingError
+}
+
+func (this *FakeBindingConnectionPool) BeginTransaction() (BindingTransaction, error) {
+	this.transactionCalls++
+	return this.transaction, this.transactionError
+}
+
+func (this *FakeBindingConnectionPool) Close() error {
+	this.closeCalls++
+	return this.closeError
+}
+
+func (this *FakeBindingConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
+func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+	this.selectCalls++
+	this.selectBinder = binder
+	this.selectStatement = statement
+	this.selectParameters = parameters
+	return this.selectError
+}
+
+///////////////////////////////////////////////////////////////
+
+type FakeBindingTransaction struct {
+	commitCalls       int
+	commitError       error
+	rollbackCalls     int
+	rollbackError     error
+	selectCalls       int
+	selectBinder      Binder
+	selectStatement   string
+	selectParameters  []interface{}
+	selectResult      *FakeSelectResult
+	selectError       error
+	executeCalls      int
+	executeStatement  string
+	executeParameters []interface{}
+	executeResult     uint64
+	executeError      error
+}
+
+func (this *FakeBindingTransaction) Commit() error {
+	this.commitCalls++
+	return this.commitError
+}
+
+func (this *FakeBindingTransaction) Rollback() error {
+	this.rollbackCalls++
+	return this.rollbackError
+}
+
+func (this *FakeBindingTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
+func (this *FakeBindingTransaction) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+	this.selectCalls++
+	this.selectBinder = binder
+	this.selectStatement = statement
+	this.selectParameters = parameters
+	return this.selectError
+}
+
+///////////////////////////////////////////////////////////////
