@@ -2,7 +2,6 @@ package sqldb
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
@@ -11,12 +10,12 @@ import (
 type SplitStatementExecutorFixture struct {
 	*gunit.Fixture
 
-	fakeInner *FakeDriverExecutor
+	fakeInner *FakeExecutor
 	executor  *SplitStatementExecutor
 }
 
 func (this *SplitStatementExecutorFixture) Setup() {
-	this.fakeInner = &FakeDriverExecutor{}
+	this.fakeInner = &FakeExecutor{}
 	this.executor = NewSplitStatementExecutor(this.fakeInner, "?")
 }
 
@@ -79,24 +78,4 @@ func (this *SplitStatementExecutorFixture) TestFailureAbortsAdditionalStatements
 	this.So(affected, should.Equal, 0)
 	this.So(err, should.Equal, this.fakeInner.errorsToReturn[1])
 	this.So(this.fakeInner.statements, should.Resemble, []string{"1;", "2;"})
-}
-
-///////////////////////////////////////////////////////////////
-
-type FakeDriverExecutor struct {
-	affected       uint64
-	errorsToReturn []error
-	statements     []string
-	parameters     [][]interface{}
-}
-
-func (this *FakeDriverExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	this.statements = append(this.statements, strings.TrimSpace(statement))
-	this.parameters = append(this.parameters, parameters)
-
-	if len(this.statements) <= len(this.errorsToReturn) {
-		return this.affected, this.errorsToReturn[len(this.statements)-1]
-	}
-
-	return this.affected, nil
 }

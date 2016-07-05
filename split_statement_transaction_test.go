@@ -2,6 +2,7 @@ package sqldb
 
 import (
 	"errors"
+
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
 )
@@ -26,7 +27,7 @@ func (this *SplitStatementTransactionFixture) TestCommit() {
 	err := this.transaction.Commit()
 
 	this.So(err, should.Equal, this.fakeInner.commitError)
-	this.So(this.fakeInner.commit, should.Equal, 1)
+	this.So(this.fakeInner.commitCalls, should.Equal, 1)
 }
 
 func (this *SplitStatementTransactionFixture) TestRollback() {
@@ -35,7 +36,7 @@ func (this *SplitStatementTransactionFixture) TestRollback() {
 	err := this.transaction.Rollback()
 
 	this.So(err, should.Equal, this.fakeInner.rollbackError)
-	this.So(this.fakeInner.rollback, should.Equal, 1)
+	this.So(this.fakeInner.rollbackCalls, should.Equal, 1)
 }
 
 func (this *SplitStatementTransactionFixture) TestSelect() {
@@ -46,9 +47,18 @@ func (this *SplitStatementTransactionFixture) TestSelect() {
 
 	this.So(result, should.Equal, this.fakeInner.selectResult)
 	this.So(err, should.Equal, this.fakeInner.selectError)
-	this.So(this.fakeInner.selects, should.Equal, 1)
+	this.So(this.fakeInner.selectCalls, should.Equal, 1)
 	this.So(this.fakeInner.selectStatement, should.Equal, "query")
 	this.So(this.fakeInner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-///////////////////////////////////////////////////////////////
+func (this *SplitStatementTransactionFixture) TestExecute() {
+	this.fakeInner.executeResult = 5
+
+	affected, err := this.transaction.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
+
+	this.So(affected, should.Equal, 10)
+	this.So(err, should.BeNil)
+	this.So(this.fakeInner.executeCalls, should.Equal, 2)
+	this.So(this.fakeInner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
+}

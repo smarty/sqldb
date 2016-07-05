@@ -1,19 +1,74 @@
 package sqldb
 
+import "strings"
+
 //go:generate go install github.com/smartystreets/gunit/gunit
 //go:generate gunit
 
-type FakeInnerTransaction struct {
-	commit            int
-	commitError       error
-	rollback          int
-	rollbackError     error
-	selects           int
+///////////////////////////////////////////////////////////////
+
+type FakeInnerConnectionPool struct {
+	pingCalls         int
+	pingError         error
+	transactionCalls  int
+	transaction       *FakeInnerTransaction
+	transactionError  error
+	closeCalls        int
+	closeError        error
+	selectCalls       int
 	selectStatement   string
 	selectParameters  []interface{}
 	selectResult      *FakeSelectResult
 	selectError       error
-	execute           int
+	executeCalls      int
+	executeStatement  string
+	executeParameters []interface{}
+	executeResult     uint64
+	executeError      error
+}
+
+func (this *FakeInnerConnectionPool) Ping() error {
+	this.pingCalls++
+	return this.pingError
+}
+
+func (this *FakeInnerConnectionPool) BeginTransaction() (Transaction, error) {
+	this.transactionCalls++
+	return this.transaction, this.transactionError
+}
+
+func (this *FakeInnerConnectionPool) Close() error {
+	this.closeCalls++
+	return this.closeError
+}
+
+func (this *FakeInnerConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
+func (this *FakeInnerConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+	this.selectCalls++
+	this.selectStatement = statement
+	this.selectParameters = parameters
+	return this.selectResult, this.selectError
+}
+
+///////////////////////////////////////////////////////////////
+
+type FakeInnerTransaction struct {
+	commitCalls       int
+	commitError       error
+	rollbackCalls     int
+	rollbackError     error
+	selectCalls       int
+	selectStatement   string
+	selectParameters  []interface{}
+	selectResult      *FakeSelectResult
+	selectError       error
+	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
 	executeResult     uint64
@@ -21,22 +76,24 @@ type FakeInnerTransaction struct {
 }
 
 func (this *FakeInnerTransaction) Commit() error {
-	this.commit++
+	this.commitCalls++
 	return this.commitError
 }
+
 func (this *FakeInnerTransaction) Rollback() error {
-	this.rollback++
+	this.rollbackCalls++
 	return this.rollbackError
 }
 
 func (this *FakeInnerTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	this.execute++
+	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
+
 func (this *FakeInnerTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
-	this.selects++
+	this.selectCalls++
 	this.selectStatement = statement
 	this.selectParameters = parameters
 	return this.selectResult, this.selectError
@@ -74,4 +131,24 @@ func (this *FakeSelectResult) Close() error {
 func (this *FakeSelectResult) Scan(target ...interface{}) error {
 	this.scanCalls++
 	return this.scanError
+}
+
+///////////////////////////////////////////////////////////////
+
+type FakeExecutor struct {
+	affected       uint64
+	errorsToReturn []error
+	statements     []string
+	parameters     [][]interface{}
+}
+
+func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	this.statements = append(this.statements, strings.TrimSpace(statement))
+	this.parameters = append(this.parameters, parameters)
+
+	if len(this.statements) <= len(this.errorsToReturn) {
+		return this.affected, this.errorsToReturn[len(this.statements)-1]
+	}
+
+	return this.affected, nil
 }
