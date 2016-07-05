@@ -3,22 +3,22 @@ package sqldb
 import "database/sql"
 
 type LibraryTransactionAdapter struct {
-	actual *sql.Tx
+	inner *sql.Tx
 }
 
 func NewLibraryTransactionAdapter(actual *sql.Tx) *LibraryTransactionAdapter {
-	return &LibraryTransactionAdapter{actual: actual}
+	return &LibraryTransactionAdapter{inner: actual}
 }
 
 func (this *LibraryTransactionAdapter) Commit() error {
-	return this.actual.Commit()
+	return this.inner.Commit()
 }
 func (this *LibraryTransactionAdapter) Rollback() error {
-	return this.actual.Rollback()
+	return this.inner.Rollback()
 }
 
 func (this *LibraryTransactionAdapter) Execute(query string, parameters ...interface{}) (uint64, error) {
-	if result, err := this.actual.Exec(query, parameters...); err != nil {
+	if result, err := this.inner.Exec(query, parameters...); err != nil {
 		return 0, err
 	} else {
 		count, _ := result.RowsAffected()
@@ -27,5 +27,5 @@ func (this *LibraryTransactionAdapter) Execute(query string, parameters ...inter
 }
 
 func (this *LibraryTransactionAdapter) Select(query string, parameters ...interface{}) (SelectResult, error) {
-	return this.actual.Query(query, parameters...)
+	return this.inner.Query(query, parameters...)
 }

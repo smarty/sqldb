@@ -3,29 +3,29 @@ package sqldb
 import "database/sql"
 
 type LibraryConnectionPoolAdapter struct {
-	actual *sql.DB
+	inner *sql.DB
 }
 
 func NewLibraryConnectionPoolAdapter(actual *sql.DB) *LibraryConnectionPoolAdapter {
-	return &LibraryConnectionPoolAdapter{actual: actual}
+	return &LibraryConnectionPoolAdapter{inner: actual}
 }
 
 func (this *LibraryConnectionPoolAdapter) Ping() error {
-	return this.actual.Ping()
+	return this.inner.Ping()
 }
 func (this *LibraryConnectionPoolAdapter) BeginTransaction() (Transaction, error) {
-	if tx, err := this.actual.Begin(); err == nil {
+	if tx, err := this.inner.Begin(); err == nil {
 		return NewLibraryTransactionAdapter(tx), nil
 	} else {
 		return nil, err
 	}
 }
 func (this *LibraryConnectionPoolAdapter) Close() error {
-	return this.actual.Close()
+	return this.inner.Close()
 }
 
 func (this *LibraryConnectionPoolAdapter) Execute(query string, parameters ...interface{}) (uint64, error) {
-	if result, err := this.actual.Exec(query, parameters...); err != nil {
+	if result, err := this.inner.Exec(query, parameters...); err != nil {
 		return 0, err
 	} else {
 		count, _ := result.RowsAffected()
@@ -34,5 +34,5 @@ func (this *LibraryConnectionPoolAdapter) Execute(query string, parameters ...in
 }
 
 func (this *LibraryConnectionPoolAdapter) Select(query string, parameters ...interface{}) (SelectResult, error) {
-	return this.actual.Query(query, parameters...)
+	return this.inner.Query(query, parameters...)
 }
