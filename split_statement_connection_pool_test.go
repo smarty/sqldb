@@ -2,10 +2,10 @@ package sqldb
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
-	"reflect"
 )
 
 type SplitStatementConnectionPoolFixture struct {
@@ -60,6 +60,17 @@ func (this *SplitStatementConnectionPoolFixture) TestClose() {
 	this.So(this.inner.closeCalls, should.Equal, 1)
 }
 
+func (this *SplitStatementConnectionPoolFixture) TestExecute() {
+	this.inner.executeResult = 5
+
+	affected, err := this.pool.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
+
+	this.So(affected, should.Equal, 10)
+	this.So(err, should.BeNil)
+	this.So(this.inner.executeCalls, should.Equal, 2)
+	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
+}
+
 func (this *SplitStatementConnectionPoolFixture) TestSelect() {
 	this.inner.selectError = errors.New("")
 	this.inner.selectResult = &FakeSelectResult{}
@@ -71,15 +82,4 @@ func (this *SplitStatementConnectionPoolFixture) TestSelect() {
 	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "query")
 	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
-}
-
-func (this *SplitStatementConnectionPoolFixture) TestExecute() {
-	this.inner.executeResult = 5
-
-	affected, err := this.pool.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
-
-	this.So(affected, should.Equal, 10)
-	this.So(err, should.BeNil)
-	this.So(this.inner.executeCalls, should.Equal, 2)
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
 }
