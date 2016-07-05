@@ -1,35 +1,35 @@
 package sqldb
 
 type BindingConnectionPoolAdapter struct {
-	actual           ConnectionPool
+	inner            ConnectionPool
 	selector         BindingSelector
 	panicOnBindError bool
 }
 
 func NewBindingConnectionPoolAdapter(actual ConnectionPool, panicOnBindError bool) *BindingConnectionPoolAdapter {
 	return &BindingConnectionPoolAdapter{
-		actual:           actual,
+		inner:            actual,
 		selector:         NewBindingSelectorAdapter(actual, panicOnBindError),
 		panicOnBindError: panicOnBindError,
 	}
 }
 
 func (this *BindingConnectionPoolAdapter) Ping() error {
-	return this.actual.Ping()
+	return this.inner.Ping()
 }
 func (this *BindingConnectionPoolAdapter) BeginTransaction() (BindingTransaction, error) {
-	if tx, err := this.actual.BeginTransaction(); err == nil {
+	if tx, err := this.inner.BeginTransaction(); err == nil {
 		return NewBindingTransactionAdapter(tx, this.panicOnBindError), nil
 	} else {
 		return nil, err
 	}
 }
 func (this *BindingConnectionPoolAdapter) Close() error {
-	return this.actual.Close()
+	return this.inner.Close()
 }
 
 func (this *BindingConnectionPoolAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	return this.actual.Execute(statement, parameters...)
+	return this.inner.Execute(statement, parameters...)
 }
 
 func (this *BindingConnectionPoolAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {

@@ -1,27 +1,27 @@
 package sqldb
 
 type BindingTransactionAdapter struct {
-	actual   Transaction
+	inner    Transaction
 	selector BindingSelector
 }
 
 func NewBindingTransactionAdapter(actual Transaction, panicOnBindError bool) *BindingTransactionAdapter {
 	return &BindingTransactionAdapter{
-		actual:   actual,
+		inner:    actual,
 		selector: NewBindingSelectorAdapter(actual, panicOnBindError),
 	}
 }
 
 func (this *BindingTransactionAdapter) Commit() error {
-	return this.actual.Commit()
+	return this.inner.Commit()
 }
 
 func (this *BindingTransactionAdapter) Rollback() error {
-	return this.actual.Rollback()
+	return this.inner.Rollback()
 }
 
 func (this *BindingTransactionAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	return this.actual.Execute(statement, parameters...)
+	return this.inner.Execute(statement, parameters...)
 }
 
 func (this *BindingTransactionAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {

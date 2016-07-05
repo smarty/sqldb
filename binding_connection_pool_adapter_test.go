@@ -11,13 +11,13 @@ import (
 type BindingConnectionPoolAdapterFixture struct {
 	*gunit.Fixture
 
-	inner      *FakeConnectionPool
-	connection *BindingConnectionPoolAdapter
+	inner *FakeConnectionPool
+	pool  *BindingConnectionPoolAdapter
 }
 
 func (this *BindingConnectionPoolAdapterFixture) Setup() {
 	this.inner = &FakeConnectionPool{}
-	this.connection = NewBindingConnectionPoolAdapter(this.inner, false)
+	this.pool = NewBindingConnectionPoolAdapter(this.inner, false)
 }
 
 ///////////////////////////////////////////////////////////////
@@ -25,14 +25,14 @@ func (this *BindingConnectionPoolAdapterFixture) Setup() {
 func (this *BindingConnectionPoolAdapterFixture) TestPing() {
 	this.inner.pingError = errors.New("")
 
-	err := this.connection.Ping()
+	err := this.pool.Ping()
 
 	this.So(err, should.Equal, this.inner.pingError)
 	this.So(this.inner.pingCalls, should.Equal, 1)
 }
 
 func (this *BindingConnectionPoolAdapterFixture) TestBeginTransaction() {
-	transaction, err := this.connection.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction()
 
 	this.So(transaction, should.NotBeNil)
 	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&BindingTransactionAdapter{}))
@@ -42,7 +42,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestBeginTransaction() {
 func (this *BindingConnectionPoolAdapterFixture) TestBeginFailedTransaction() {
 	this.inner.transactionError = errors.New("")
 
-	transaction, err := this.connection.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction()
 
 	this.So(transaction, should.BeNil)
 	this.So(err, should.Equal, this.inner.transactionError)
@@ -51,7 +51,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestBeginFailedTransaction() {
 func (this *BindingConnectionPoolAdapterFixture) TestClose() {
 	this.inner.closeError = errors.New("")
 
-	err := this.connection.Close()
+	err := this.pool.Close()
 
 	this.So(err, should.Equal, this.inner.closeError)
 	this.So(this.inner.closeCalls, should.Equal, 1)
@@ -61,7 +61,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 	this.inner.executeResult = 42
 	this.inner.executeError = errors.New("")
 
-	affected, err := this.connection.Execute("statement")
+	affected, err := this.pool.Execute("statement")
 
 	this.So(affected, should.Equal, this.inner.executeResult)
 	this.So(err, should.Equal, this.inner.executeError)
@@ -72,7 +72,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 func (this *BindingConnectionPoolAdapterFixture) TestBindSelect() {
 	this.inner.selectError = errors.New("")
 
-	err := this.connection.BindSelect(nil, "query", 1, 2, 3)
+	err := this.pool.BindSelect(nil, "query", 1, 2, 3)
 
 	this.So(err, should.Equal, this.inner.selectError)
 	this.So(this.inner.selectCalls, should.Equal, 1)
