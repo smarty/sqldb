@@ -2,6 +2,7 @@ package sqldb
 
 import (
 	"errors"
+	"testing"
 	"time"
 
 	"github.com/smartystreets/assertions"
@@ -9,6 +10,10 @@ import (
 	"github.com/smartystreets/clock"
 	"github.com/smartystreets/gunit"
 )
+
+func TestRetryBindingSelectorFixture(t *testing.T) {
+        gunit.Run(new(RetryBindingSelectorFixture), t)
+}
 
 type RetryBindingSelectorFixture struct {
 	*gunit.Fixture

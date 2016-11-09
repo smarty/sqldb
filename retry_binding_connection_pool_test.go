@@ -2,12 +2,17 @@ package sqldb
 
 import (
 	"errors"
+	"testing"
 	"time"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/clock"
 	"github.com/smartystreets/gunit"
 )
+
+func TestRetryBindingConnectionPoolFixture(t *testing.T) {
+        gunit.Run(new(RetryBindingConnectionPoolFixture), t)
+}
 
 type RetryBindingConnectionPoolFixture struct {
 	*gunit.Fixture

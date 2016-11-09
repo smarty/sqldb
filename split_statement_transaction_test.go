@@ -2,10 +2,15 @@ package sqldb
 
 import (
 	"errors"
+	"testing"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
 )
+
+func TestSplitStatementTransactionFixture(t *testing.T) {
+        gunit.Run(new(SplitStatementTransactionFixture), t)
+}
 
 type SplitStatementTransactionFixture struct {
 	*gunit.Fixture

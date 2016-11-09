@@ -2,10 +2,15 @@ package sqldb
 
 import (
 	"errors"
+	"testing"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
 )
+
+func TestBindingTransactionAdapterFixture(t *testing.T) {
+        gunit.Run(new(BindingTransactionAdapterFixture), t)
+}
 
 type BindingTransactionAdapterFixture struct {
 	*gunit.Fixture

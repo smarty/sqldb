@@ -3,10 +3,15 @@ package sqldb
 import (
 	"errors"
 	"reflect"
+	"testing"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
 )
+
+func TestSplitStatementConnectionPoolFixture(t *testing.T) {
+        gunit.Run(new(SplitStatementConnectionPoolFixture), t)
+}
 
 type SplitStatementConnectionPoolFixture struct {
 	*gunit.Fixture

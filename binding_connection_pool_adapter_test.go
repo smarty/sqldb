@@ -3,10 +3,15 @@ package sqldb
 import (
 	"errors"
 	"reflect"
+	"testing"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
 )
+
+func TestBindingConnectionPoolAdapterFixture(t *testing.T) {
+        gunit.Run(new(BindingConnectionPoolAdapterFixture), t)
+}
 
 type BindingConnectionPoolAdapterFixture struct {
 	*gunit.Fixture

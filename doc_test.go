@@ -2,9 +2,6 @@ package sqldb
 
 import "strings"
 
-//go:generate go install github.com/smartystreets/gunit/gunit
-//go:generate gunit
-
 ///////////////////////////////////////////////////////////////
 
 type FakeConnectionPool struct {
