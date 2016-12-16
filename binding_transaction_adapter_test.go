@@ -9,7 +9,7 @@ import (
 )
 
 func TestBindingTransactionAdapterFixture(t *testing.T) {
-        gunit.Run(new(BindingTransactionAdapterFixture), t)
+	gunit.Run(new(BindingTransactionAdapterFixture), t)
 }
 
 type BindingTransactionAdapterFixture struct {

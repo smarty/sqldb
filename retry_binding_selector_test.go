@@ -12,7 +12,7 @@ import (
 )
 
 func TestRetryBindingSelectorFixture(t *testing.T) {
-        gunit.Run(new(RetryBindingSelectorFixture), t)
+	gunit.Run(new(RetryBindingSelectorFixture), t)
 }
 
 type RetryBindingSelectorFixture struct {

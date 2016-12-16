@@ -10,7 +10,7 @@ import (
 )
 
 func TestBindingConnectionPoolAdapterFixture(t *testing.T) {
-        gunit.Run(new(BindingConnectionPoolAdapterFixture), t)
+	gunit.Run(new(BindingConnectionPoolAdapterFixture), t)
 }
 
 type BindingConnectionPoolAdapterFixture struct {

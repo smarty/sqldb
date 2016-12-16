@@ -11,7 +11,7 @@ import (
 )
 
 func TestRetryBindingConnectionPoolFixture(t *testing.T) {
-        gunit.Run(new(RetryBindingConnectionPoolFixture), t)
+	gunit.Run(new(RetryBindingConnectionPoolFixture), t)
 }
 
 type RetryBindingConnectionPoolFixture struct {

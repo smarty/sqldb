@@ -9,7 +9,7 @@ import (
 )
 
 func TestBindingSelectorAdapterFixture(t *testing.T) {
-        gunit.Run(new(BindingSelectorAdapterFixture), t)
+	gunit.Run(new(BindingSelectorAdapterFixture), t)
 }
 
 type BindingSelectorAdapterFixture struct {

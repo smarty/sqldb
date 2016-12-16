@@ -10,7 +10,7 @@ import (
 )
 
 func TestSplitStatementConnectionPoolFixture(t *testing.T) {
-        gunit.Run(new(SplitStatementConnectionPoolFixture), t)
+	gunit.Run(new(SplitStatementConnectionPoolFixture), t)
 }
 
 type SplitStatementConnectionPoolFixture struct {

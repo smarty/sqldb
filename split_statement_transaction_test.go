@@ -9,7 +9,7 @@ import (
 )
 
 func TestSplitStatementTransactionFixture(t *testing.T) {
-        gunit.Run(new(SplitStatementTransactionFixture), t)
+	gunit.Run(new(SplitStatementTransactionFixture), t)
 }
 
 type SplitStatementTransactionFixture struct {
