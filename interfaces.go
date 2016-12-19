@@ -24,6 +24,11 @@ type (
 		Select(string, ...interface{}) (SelectResult, error)
 	}
 
+	SelectExecutor interface {
+		Selector
+		Executor
+	}
+
 	SelectResult interface {
 		Next() bool
 		Err() error
@@ -57,4 +62,9 @@ type (
 	}
 
 	Binder func(Scanner) error
+
+	BindingSelectExecutor interface {
+		BindingSelector
+		Executor
+	}
 )
