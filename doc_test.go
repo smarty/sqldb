@@ -5,18 +5,22 @@ import "strings"
 ///////////////////////////////////////////////////////////////
 
 type FakeConnectionPool struct {
-	pingCalls         int
-	pingError         error
-	transactionCalls  int
-	transaction       *FakeTransaction
-	transactionError  error
-	closeCalls        int
-	closeError        error
-	selectCalls       int
-	selectStatement   string
-	selectParameters  []interface{}
-	selectResult      *FakeSelectResult
-	selectError       error
+	pingCalls int
+	pingError error
+
+	transactionCalls int
+	transaction      *FakeTransaction
+	transactionError error
+
+	closeCalls int
+	closeError error
+
+	selectCalls      int
+	selectStatement  string
+	selectParameters []interface{}
+	selectResult     *FakeSelectResult
+	selectError      error
+
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
@@ -56,15 +60,18 @@ func (this *FakeConnectionPool) Select(statement string, parameters ...interface
 ///////////////////////////////////////////////////////////////
 
 type FakeTransaction struct {
-	commitCalls       int
-	commitError       error
-	rollbackCalls     int
-	rollbackError     error
-	selectCalls       int
-	selectStatement   string
-	selectParameters  []interface{}
-	selectResult      *FakeSelectResult
-	selectError       error
+	commitCalls int
+	commitError error
+
+	rollbackCalls int
+	rollbackError error
+
+	selectCalls      int
+	selectStatement  string
+	selectParameters []interface{}
+	selectResult     *FakeSelectResult
+	selectError      error
+
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
@@ -153,19 +160,23 @@ func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (
 ///////////////////////////////////////////////////////////////
 
 type FakeBindingConnectionPool struct {
-	pingCalls         int
-	pingError         error
-	transactionCalls  int
-	transaction       *FakeBindingTransaction
-	transactionError  error
-	closeCalls        int
-	closeError        error
-	selectCalls       int
-	selectBinder      Binder
-	selectStatement   string
-	selectParameters  []interface{}
-	selectResult      *FakeSelectResult
-	selectError       error
+	pingCalls int
+	pingError error
+
+	transactionCalls int
+	transaction      *FakeBindingTransaction
+	transactionError error
+
+	closeCalls int
+	closeError error
+
+	selectCalls      int
+	selectBinder     Binder
+	selectStatement  string
+	selectParameters []interface{}
+	selectResult     *FakeSelectResult
+	selectError      error
+
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
@@ -206,16 +217,19 @@ func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement strin
 ///////////////////////////////////////////////////////////////
 
 type FakeBindingTransaction struct {
-	commitCalls       int
-	commitError       error
-	rollbackCalls     int
-	rollbackError     error
-	selectCalls       int
-	selectBinder      Binder
-	selectStatement   string
-	selectParameters  []interface{}
-	selectResult      *FakeSelectResult
-	selectError       error
+	commitCalls int
+	commitError error
+
+	rollbackCalls int
+	rollbackError error
+
+	selectCalls      int
+	selectBinder     Binder
+	selectStatement  string
+	selectParameters []interface{}
+	selectResult     *FakeSelectResult
+	selectError      error
+
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
