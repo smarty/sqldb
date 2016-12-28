@@ -47,7 +47,7 @@ func (this *Wireup) Build() ConnectionPool {
 	}
 
 	if this.stackTraceOnError {
-		pool = NewStackTraceConnectionPoolAdapter(pool)
+		pool = NewStackTraceConnectionPool(pool)
 	}
 
 	return pool

@@ -5,39 +5,39 @@ import (
 	"runtime/debug"
 )
 
-type StackTraceConnectionPoolAdapter struct {
+type StackTraceConnectionPool struct {
 	inner ConnectionPool
 	stack *StackTrace
 }
 
-func NewStackTraceConnectionPoolAdapter(inner ConnectionPool) *StackTraceConnectionPoolAdapter {
-	return &StackTraceConnectionPoolAdapter{inner: inner}
+func NewStackTraceConnectionPool(inner ConnectionPool) *StackTraceConnectionPool {
+	return &StackTraceConnectionPool{inner: inner}
 }
 
-func (this *StackTraceConnectionPoolAdapter) Ping() error {
+func (this *StackTraceConnectionPool) Ping() error {
 	return this.wrap(this.inner.Ping())
 }
 
-func (this *StackTraceConnectionPoolAdapter) BeginTransaction() (Transaction, error) {
+func (this *StackTraceConnectionPool) BeginTransaction() (Transaction, error) {
 	tx, err := this.inner.BeginTransaction()
 	return tx, this.wrap(err)
 }
 
-func (this *StackTraceConnectionPoolAdapter) Close() error {
+func (this *StackTraceConnectionPool) Close() error {
 	return this.wrap(this.inner.Close())
 }
 
-func (this *StackTraceConnectionPoolAdapter) Execute(query string, parameters ...interface{}) (uint64, error) {
+func (this *StackTraceConnectionPool) Execute(query string, parameters ...interface{}) (uint64, error) {
 	rows, err := this.inner.Execute(query, parameters...)
 	return rows, this.wrap(err)
 }
 
-func (this *StackTraceConnectionPoolAdapter) Select(query string, parameters ...interface{}) (SelectResult, error) {
+func (this *StackTraceConnectionPool) Select(query string, parameters ...interface{}) (SelectResult, error) {
 	result, err := this.inner.Select(query, parameters...)
 	return result, this.wrap(err)
 }
 
-func (this *StackTraceConnectionPoolAdapter) wrap(err error) error {
+func (this *StackTraceConnectionPool) wrap(err error) error {
 	if err != nil {
 		err = fmt.Errorf("%s\nStack Trace:\n%s", err.Error(), this.stack.StackTrace())
 	}

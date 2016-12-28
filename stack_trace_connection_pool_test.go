@@ -9,31 +9,31 @@ import (
 	"github.com/smartystreets/gunit"
 )
 
-func TestStackTraceConnectionPoolAdapterFixture(t *testing.T) {
-	gunit.Run(new(StackTraceConnectionPoolAdapterFixture), t)
+func TestStackTraceConnectionPoolFixture(t *testing.T) {
+	gunit.Run(new(StackTraceConnectionPoolFixture), t)
 }
 
-type StackTraceConnectionPoolAdapterFixture struct {
+type StackTraceConnectionPoolFixture struct {
 	*gunit.Fixture
 
 	pool    *FakeConnectionPool
-	adapter *StackTraceConnectionPoolAdapter
+	adapter *StackTraceConnectionPool
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) Setup() {
+func (this *StackTraceConnectionPoolFixture) Setup() {
 	this.pool = &FakeConnectionPool{}
-	this.adapter = NewStackTraceConnectionPoolAdapter(this.pool)
+	this.adapter = NewStackTraceConnectionPool(this.pool)
 	this.adapter.stack = ContrivedStackTrace("HELLO, WORLD!")
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestPing_WhenSuccessful_NoStackTraceIncluded() {
+func (this *StackTraceConnectionPoolFixture) TestPing_WhenSuccessful_NoStackTraceIncluded() {
 	err := this.adapter.Ping()
 
 	this.So(err, should.BeNil)
 	this.So(this.pool.pingCalls, should.Equal, 1)
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestPing_WhenFails_StackTraceAppendedToErr() {
+func (this *StackTraceConnectionPoolFixture) TestPing_WhenFails_StackTraceAppendedToErr() {
 	this.pool.pingError = errors.New("PING ERROR")
 
 	err := this.adapter.Ping()
@@ -43,14 +43,14 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestPing_WhenFails_StackTrac
 	this.So(err.Error(), should.Equal, "PING ERROR\nStack Trace:\nHELLO, WORLD!")
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestClose_WhenSuccessful_NoStackTraceIncluded() {
+func (this *StackTraceConnectionPoolFixture) TestClose_WhenSuccessful_NoStackTraceIncluded() {
 	err := this.adapter.Close()
 
 	this.So(err, should.BeNil)
 	this.So(this.pool.closeCalls, should.Equal, 1)
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestClose_WhenFails_StackTraceAppendedToErr() {
+func (this *StackTraceConnectionPoolFixture) TestClose_WhenFails_StackTraceAppendedToErr() {
 	this.pool.closeError = errors.New("CLOSE ERROR")
 
 	err := this.adapter.Close()
@@ -60,7 +60,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestClose_WhenFails_StackTra
 	this.So(err.Error(), should.Equal, "CLOSE ERROR\nStack Trace:\nHELLO, WORLD!")
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestBeginTransaction_WhenSuccessful_NoStackTraceIncluded() {
+func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenSuccessful_NoStackTraceIncluded() {
 	transaction := new(FakeTransaction)
 	this.pool.transaction = transaction
 
@@ -71,7 +71,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestBeginTransaction_WhenSuc
 	this.So(tx, should.Equal, transaction)
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestBeginTransaction_WhenFails_StackTraceAppendedToErr() {
+func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenFails_StackTraceAppendedToErr() {
 	transaction := new(FakeTransaction)
 	this.pool.transaction = transaction
 	this.pool.transactionError = errors.New("TX ERROR")
@@ -84,7 +84,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestBeginTransaction_WhenFai
 	this.So(err.Error(), should.Equal, "TX ERROR\nStack Trace:\nHELLO, WORLD!")
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestExecute_WhenSuccessful_NoStackTraceIncluded() {
+func (this *StackTraceConnectionPoolFixture) TestExecute_WhenSuccessful_NoStackTraceIncluded() {
 	this.pool.executeResult = 42
 
 	result, err := this.adapter.Execute("QUERY", 1, 2, 3)
@@ -96,7 +96,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestExecute_WhenSuccessful_N
 	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestExecute_WhenFails_StackTraceAppendedToErr() {
+func (this *StackTraceConnectionPoolFixture) TestExecute_WhenFails_StackTraceAppendedToErr() {
 	this.pool.executeError = errors.New("EXECUTE ERROR")
 	this.pool.executeResult = 42
 
@@ -110,7 +110,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestExecute_WhenFails_StackT
 	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestSelect_WhenSuccessful_NoStackTraceIncluded() {
+func (this *StackTraceConnectionPoolFixture) TestSelect_WhenSuccessful_NoStackTraceIncluded() {
 	expectedResult := new(FakeSelectResult)
 	this.pool.selectResult = expectedResult
 
@@ -123,7 +123,7 @@ func (this *StackTraceConnectionPoolAdapterFixture) TestSelect_WhenSuccessful_No
 	this.So(this.pool.selectParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *StackTraceConnectionPoolAdapterFixture) TestSelect_WhenFails_StackTraceAppendedToErr() {
+func (this *StackTraceConnectionPoolFixture) TestSelect_WhenFails_StackTraceAppendedToErr() {
 	expectedResult := new(FakeSelectResult)
 	this.pool.selectResult = expectedResult
 	this.pool.selectError = errors.New("SELECT ERROR")
