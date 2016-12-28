@@ -2,7 +2,6 @@ package sqldb
 
 import (
 	"errors"
-	"runtime/debug"
 	"testing"
 
 	"github.com/smartystreets/assertions/should"
@@ -136,31 +135,4 @@ func (this *StackTraceConnectionPoolFixture) TestSelect_WhenFails_StackTraceAppe
 	this.So(this.pool.selectCalls, should.Equal, 1)
 	this.So(this.pool.selectStatement, should.Equal, "QUERY")
 	this.So(this.pool.selectParameters, should.Resemble, []interface{}{1, 2, 3})
-}
-
-/**************************************************************************/
-
-func TestStackTraceFixture(t *testing.T) {
-	gunit.Run(new(StackTraceFixture), t)
-}
-
-type StackTraceFixture struct {
-	*gunit.Fixture
-
-	stack *StackTrace
-}
-
-func (this *StackTraceFixture) TestWhenNil_ReturnsActualStackTrace() {
-	actual := this.stack.StackTrace()
-	expected := string(debug.Stack())
-
-	actual = actual[len(actual)-1000:]       // last 1000 characters
-	expected = expected[len(expected)-1000:] // last 1000 characters
-
-	this.So(actual, should.Equal, expected)
-}
-
-func (this *StackTraceFixture) TestWhenNonNil_ReturnsPreSetMessage() {
-	this.stack = ContrivedStackTrace("HELLO")
-	this.So(this.stack.StackTrace(), should.Equal, "HELLO")
 }
