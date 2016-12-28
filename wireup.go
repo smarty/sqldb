@@ -6,11 +6,12 @@ import (
 )
 
 type Wireup struct {
-	inner            *sql.DB
-	splitStatement   bool
-	panicOnBindError bool
-	parameterPrefix  string
-	retrySleep       time.Duration
+	inner             *sql.DB
+	splitStatement    bool
+	panicOnBindError  bool
+	stackTraceOnError bool
+	parameterPrefix   string
+	retrySleep        time.Duration
 }
 
 func Configure(pool *sql.DB) *Wireup {
@@ -33,11 +34,20 @@ func (this *Wireup) WithRetry(retrySleep time.Duration) *Wireup {
 	return this
 }
 
+func (this *Wireup) WithStackTraceErrDiagnostics() *Wireup {
+	this.stackTraceOnError = true
+	return this
+}
+
 func (this *Wireup) Build() ConnectionPool {
 	var pool ConnectionPool = NewLibraryConnectionPoolAdapter(this.inner)
 
 	if this.splitStatement {
 		pool = NewSplitStatementConnectionPool(pool, this.parameterPrefix)
+	}
+
+	if this.stackTraceOnError {
+		pool = NewStackTraceConnectionPoolAdapter(pool)
 	}
 
 	return pool
