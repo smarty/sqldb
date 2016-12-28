@@ -37,7 +37,7 @@ func (this *Wireup) Build() ConnectionPool {
 	var pool ConnectionPool = NewLibraryConnectionPoolAdapter(this.inner)
 
 	if this.splitStatement {
-		pool = NewSplitStatemenConnectionPool(pool, this.parameterPrefix)
+		pool = NewSplitStatementConnectionPool(pool, this.parameterPrefix)
 	}
 
 	return pool

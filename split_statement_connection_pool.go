@@ -6,7 +6,7 @@ type SplitStatementConnectionPool struct {
 	executor  *SplitStatementExecutor
 }
 
-func NewSplitStatemenConnectionPool(inner ConnectionPool, delimiter string) *SplitStatementConnectionPool {
+func NewSplitStatementConnectionPool(inner ConnectionPool, delimiter string) *SplitStatementConnectionPool {
 	return &SplitStatementConnectionPool{
 		inner:     inner,
 		delimiter: delimiter,

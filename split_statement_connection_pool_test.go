@@ -22,7 +22,7 @@ type SplitStatementConnectionPoolFixture struct {
 
 func (this *SplitStatementConnectionPoolFixture) Setup() {
 	this.inner = &FakeConnectionPool{}
-	this.pool = NewSplitStatemenConnectionPool(this.inner, "?")
+	this.pool = NewSplitStatementConnectionPool(this.inner, "?")
 }
 
 ///////////////////////////////////////////////////////////////
