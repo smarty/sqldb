@@ -22,7 +22,7 @@ type StackTraceConnectionPoolFixture struct {
 func (this *StackTraceConnectionPoolFixture) Setup() {
 	this.pool = &FakeConnectionPool{}
 	this.adapter = NewStackTraceConnectionPool(this.pool)
-	this.adapter.stack = ContrivedStackTrace("HELLO, WORLD!")
+	this.adapter.StackTrace = ContrivedStackTrace("HELLO, WORLD!")
 }
 
 func (this *StackTraceConnectionPoolFixture) TestPing_WhenSuccessful_NoStackTraceIncluded() {

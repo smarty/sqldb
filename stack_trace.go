@@ -1,6 +1,9 @@
 package sqldb
 
-import "runtime/debug"
+import (
+	"fmt"
+	"runtime/debug"
+)
 
 // StackTrace, like github.com/smartystreets/clock.Clock performs in production mode
 // when used as a nil pointer struct field. When non-nil, it returns a preset value.
@@ -11,6 +14,13 @@ type StackTrace struct {
 
 func ContrivedStackTrace(trace string) *StackTrace {
 	return &StackTrace{trace: trace}
+}
+
+func (this *StackTrace) Wrap(err error) error {
+	if err != nil {
+		err = fmt.Errorf("%s\nStack Trace:\n%s", err.Error(), this.StackTrace())
+	}
+	return err
 }
 
 func (this *StackTrace) StackTrace() string {
