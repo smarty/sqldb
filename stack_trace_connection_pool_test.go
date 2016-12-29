@@ -67,7 +67,7 @@ func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenSuccessful
 
 	this.So(err, should.BeNil)
 	this.So(this.pool.transactionCalls, should.Equal, 1)
-	this.So(tx, should.Equal, transaction)
+	this.So(tx.(*StackTraceTransaction).inner, should.Equal, transaction)
 }
 
 func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenFails_StackTraceAppendedToErr() {
@@ -78,7 +78,7 @@ func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenFails_Stac
 	tx, err := this.adapter.BeginTransaction()
 
 	this.So(this.pool.transactionCalls, should.Equal, 1)
-	this.So(tx, should.Equal, transaction)
+	this.So(tx, should.BeNil)
 	this.So(err, should.NotBeNil)
 	this.So(err.Error(), should.Equal, "TX ERROR\nStack Trace:\nHELLO, WORLD!")
 }

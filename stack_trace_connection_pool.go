@@ -16,8 +16,11 @@ func (this *StackTraceConnectionPool) Ping() error {
 }
 
 func (this *StackTraceConnectionPool) BeginTransaction() (Transaction, error) {
-	tx, err := this.inner.BeginTransaction()
-	return tx, this.wrap(err)
+	if tx, err := this.inner.BeginTransaction(); err == nil {
+		return NewStackTraceTransaction(tx), nil
+	} else {
+		return nil, this.wrap(err)
+	}
 }
 
 func (this *StackTraceConnectionPool) Close() error {
