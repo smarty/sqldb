@@ -1,7 +1,8 @@
 package sqldb
 
 type StackTraceTransaction struct {
-	inner    Transaction
+	*StackTrace
+	inner Transaction
 }
 
 func NewStackTraceTransaction(inner Transaction) *StackTraceTransaction {
@@ -9,17 +10,19 @@ func NewStackTraceTransaction(inner Transaction) *StackTraceTransaction {
 }
 
 func (this *StackTraceTransaction) Commit() error {
-	panic("implement me")
+	return this.Wrap(this.inner.Commit())
 }
 
 func (this *StackTraceTransaction) Rollback() error {
-	panic("implement me")
+	return this.Wrap(this.inner.Rollback())
 }
 
-func (this *StackTraceTransaction) Execute(string, ...interface{}) (uint64, error) {
-	panic("implement me")
+func (this *StackTraceTransaction) Execute(statement string, args ...interface{}) (uint64, error) {
+	result, err := this.inner.Execute(statement, args...)
+	return result, this.Wrap(err)
 }
 
-func (this *StackTraceTransaction) Select(string, ...interface{}) (SelectResult, error) {
-	panic("implement me")
+func (this *StackTraceTransaction) Select(statement string, args ...interface{}) (SelectResult, error) {
+	result, err := this.inner.Select(statement, args...)
+	return result, this.Wrap(err)
 }
