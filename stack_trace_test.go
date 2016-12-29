@@ -1,12 +1,12 @@
 package sqldb
 
 import (
+	"errors"
 	"runtime/debug"
 	"testing"
 
 	"github.com/smartystreets/assertions/should"
 	"github.com/smartystreets/gunit"
-	"errors"
 )
 
 func TestStackTraceFixture(t *testing.T) {
