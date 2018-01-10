@@ -14,32 +14,44 @@ type Wireup struct {
 	retrySleep        time.Duration
 }
 
-func Configure(pool *sql.DB) *Wireup {
-	return &Wireup{inner: pool}
+func ConfigureConnectionPool(pool *sql.DB, options ...Option) ConnectionPool {
+	wireup := &Wireup{inner: pool}
+	wireup.configure(options...)
+	return wireup.build()
+}
+func ConfigureBindingConnectionPool(pool *sql.DB, options ...Option) BindingConnectionPool {
+	wireup := &Wireup{inner: pool}
+	wireup.configure(options...)
+	return wireup.buildWithBinding()
+}
+func (this *Wireup) configure(options ...Option) {
+	for _, option := range options {
+		option(this)
+	}
 }
 
-func (this *Wireup) WithPanicOnBindError() *Wireup {
-	this.panicOnBindError = true
-	return this
+type Option func(wireup *Wireup)
+
+func WithPanicOnBindError() Option {
+	return func(wireup *Wireup) { wireup.panicOnBindError = true }
 }
 
-func (this *Wireup) WithMySQL() *Wireup {
-	this.splitStatement = true
-	this.parameterPrefix = "?"
-	return this
+func WithMySQL() Option {
+	return func(wireup *Wireup) {
+		wireup.splitStatement = true
+		wireup.parameterPrefix = "?"
+	}
 }
 
-func (this *Wireup) WithRetry(retrySleep time.Duration) *Wireup {
-	this.retrySleep = retrySleep
-	return this
+func WithRetry(retrySleep time.Duration) Option {
+	return func(wireup *Wireup) { wireup.retrySleep = retrySleep }
 }
 
-func (this *Wireup) WithStackTraceErrDiagnostics() *Wireup {
-	this.stackTraceOnError = true
-	return this
+func WithStackTraceErrDiagnostics() Option {
+	return func(wireup *Wireup) { wireup.stackTraceOnError = true }
 }
 
-func (this *Wireup) Build() ConnectionPool {
+func (this *Wireup) build() ConnectionPool {
 	var pool ConnectionPool = NewLibraryConnectionPoolAdapter(this.inner)
 
 	if this.splitStatement {
@@ -53,8 +65,8 @@ func (this *Wireup) Build() ConnectionPool {
 	return pool
 }
 
-func (this *Wireup) BuildWithBinding() BindingConnectionPool {
-	inner := this.Build()
+func (this *Wireup) buildWithBinding() BindingConnectionPool {
+	inner := this.build()
 	var pool BindingConnectionPool = NewBindingConnectionPoolAdapter(inner, this.panicOnBindError)
 
 	if this.retrySleep > 0 {
