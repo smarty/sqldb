@@ -15,12 +15,12 @@ type Wireup struct {
 }
 
 func ConfigureConnectionPool(pool *sql.DB, options ...Option) ConnectionPool {
-	wireup := &Wireup{inner: pool, parameterPrefix: "?"}
+	wireup := &Wireup{inner: pool}
 	wireup.configure(options...)
 	return wireup.build()
 }
 func ConfigureBindingConnectionPool(pool *sql.DB, options ...Option) BindingConnectionPool {
-	wireup := &Wireup{inner: pool, parameterPrefix: "?"}
+	wireup := &Wireup{inner: pool}
 	wireup.configure(options...)
 	return wireup.buildWithBinding()
 }
@@ -41,6 +41,10 @@ func WithMySQL() Option {
 		wireup.splitStatement = true
 		wireup.parameterPrefix = "?"
 	}
+}
+
+func WithParameterPrefix(value string) Option {
+	return func(wireup *Wireup) { wireup.parameterPrefix = value }
 }
 
 func WithRetry(retrySleep time.Duration) Option {
