@@ -15,12 +15,12 @@ type Wireup struct {
 }
 
 func ConfigureConnectionPool(pool *sql.DB, options ...Option) ConnectionPool {
-	wireup := &Wireup{inner: pool}
+	wireup := &Wireup{inner: pool, parameterPrefix: "?"}
 	wireup.configure(options...)
 	return wireup.build()
 }
 func ConfigureBindingConnectionPool(pool *sql.DB, options ...Option) BindingConnectionPool {
-	wireup := &Wireup{inner: pool}
+	wireup := &Wireup{inner: pool, parameterPrefix: "?"}
 	wireup.configure(options...)
 	return wireup.buildWithBinding()
 }
