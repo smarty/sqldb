@@ -29,6 +29,9 @@ func (this *RetryBindingConnectionPool) Close() error {
 func (this *RetryBindingConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.inner.Execute(statement, parameters...)
 }
+func (this *RetryBindingConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *RetryBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	return this.selector.BindSelect(binder, statement, parameters...)

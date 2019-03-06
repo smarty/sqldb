@@ -21,6 +21,9 @@ func (this *StackTraceTransaction) Execute(statement string, args ...interface{}
 	result, err := this.inner.Execute(statement, args...)
 	return result, this.Wrap(err)
 }
+func (this *StackTraceTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *StackTraceTransaction) Select(statement string, args ...interface{}) (SelectResult, error) {
 	result, err := this.inner.Select(statement, args...)

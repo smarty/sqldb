@@ -31,6 +31,9 @@ func (this *BindingConnectionPoolAdapter) Close() error {
 func (this *BindingConnectionPoolAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.inner.Execute(statement, parameters...)
 }
+func (this *BindingConnectionPoolAdapter) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *BindingConnectionPoolAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	return this.selector.BindSelect(binder, statement, parameters...)

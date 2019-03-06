@@ -23,6 +23,9 @@ func (this *BindingTransactionAdapter) Rollback() error {
 func (this *BindingTransactionAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.inner.Execute(statement, parameters...)
 }
+func (this *BindingTransactionAdapter) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *BindingTransactionAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	return this.selector.BindSelect(binder, statement, parameters...)

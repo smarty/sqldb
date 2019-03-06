@@ -49,6 +49,9 @@ func (this *FakeConnectionPool) Execute(statement string, parameters ...interfac
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
+func (this *FakeConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *FakeConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selectCalls++
@@ -94,6 +97,9 @@ func (this *FakeTransaction) Execute(statement string, parameters ...interface{}
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
+}
+func (this *FakeTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
 }
 
 func (this *FakeTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
@@ -156,6 +162,9 @@ func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (
 
 	return this.affected, nil
 }
+func (this *FakeExecutor) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 ///////////////////////////////////////////////////////////////
 
@@ -205,6 +214,9 @@ func (this *FakeBindingConnectionPool) Execute(statement string, parameters ...i
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
+func (this *FakeBindingConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	this.selectCalls++
@@ -252,6 +264,9 @@ func (this *FakeBindingTransaction) Execute(statement string, parameters ...inte
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
+}
+func (this *FakeBindingTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
 }
 
 func (this *FakeBindingTransaction) BindSelect(binder Binder, statement string, parameters ...interface{}) error {

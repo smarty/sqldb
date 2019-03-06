@@ -23,6 +23,9 @@ func (this *SplitStatementTransaction) Rollback() error {
 func (this *SplitStatementTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.executor.Execute(statement, parameters...)
 }
+func (this *SplitStatementTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *SplitStatementTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	return this.inner.Select(statement, parameters...)

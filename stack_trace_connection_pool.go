@@ -29,6 +29,9 @@ func (this *StackTraceConnectionPool) Execute(query string, parameters ...interf
 	rows, err := this.inner.Execute(query, parameters...)
 	return rows, this.Wrap(err)
 }
+func (this *StackTraceConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
+	panic("not implemented")
+}
 
 func (this *StackTraceConnectionPool) Select(query string, parameters ...interface{}) (SelectResult, error) {
 	result, err := this.inner.Select(query, parameters...)

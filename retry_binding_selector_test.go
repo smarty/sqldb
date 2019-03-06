@@ -106,3 +106,6 @@ func (this *FakeRetrySelector) BindSelect(binder Binder, statement string, param
 func (this *FakeRetrySelector) Execute(string, ...interface{}) (uint64, error) {
 	panic("Should not be called.")
 }
+func (this *FakeRetrySelector) ExecuteIdentity(string, ...interface{}) (uint64, uint64, error) {
+	panic("Should not be called.")
+}
