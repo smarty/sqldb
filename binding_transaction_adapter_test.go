@@ -55,6 +55,19 @@ func (this *BindingTransactionAdapterFixture) TestExecute() {
 	this.So(this.inner.executeStatement, should.Equal, "statement")
 	this.So(this.inner.executeCalls, should.Equal, 1)
 }
+func (this *BindingTransactionAdapterFixture) TestExecuteIdentity() {
+	this.inner.executeResult = 42
+	this.inner.executeIdentity = 47
+	this.inner.executeError = errors.New("")
+
+	affected, identity, err := this.transaction.ExecuteIdentity("statement")
+
+	this.So(affected, should.Equal, this.inner.executeResult)
+	this.So(identity, should.Equal, this.inner.executeIdentity)
+	this.So(err, should.Equal, this.inner.executeError)
+	this.So(this.inner.executeStatement, should.Equal, "statement")
+	this.So(this.inner.executeCalls, should.Equal, 1)
+}
 
 func (this *BindingTransactionAdapterFixture) TestBindSelect() {
 	this.inner.selectError = errors.New("")

@@ -24,7 +24,7 @@ func (this *BindingTransactionAdapter) Execute(statement string, parameters ...i
 	return this.inner.Execute(statement, parameters...)
 }
 func (this *BindingTransactionAdapter) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	return this.inner.ExecuteIdentity(statement, parameters...)
 }
 
 func (this *BindingTransactionAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {

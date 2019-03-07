@@ -34,7 +34,7 @@ func (this *SplitStatementConnectionPool) Execute(statement string, parameters .
 	return this.executor.Execute(statement, parameters...)
 }
 func (this *SplitStatementConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	return this.executor.ExecuteIdentity(statement, parameters...)
 }
 
 func (this *SplitStatementConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {

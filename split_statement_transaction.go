@@ -24,7 +24,7 @@ func (this *SplitStatementTransaction) Execute(statement string, parameters ...i
 	return this.executor.Execute(statement, parameters...)
 }
 func (this *SplitStatementTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	return this.executor.ExecuteIdentity(statement, parameters...)
 }
 
 func (this *SplitStatementTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {

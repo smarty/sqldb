@@ -67,3 +67,15 @@ func (this *SplitStatementTransactionFixture) TestExecute() {
 	this.So(this.inner.executeCalls, should.Equal, 2)
 	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
 }
+func (this *SplitStatementTransactionFixture) TestExecuteIdentity() {
+	this.inner.executeResult = 5
+	this.inner.executeIdentity = 42
+
+	affected, identity, err := this.transaction.ExecuteIdentity("statement1 ?; statement2 ? ?;", 1, 2, 3)
+
+	this.So(affected, should.Equal, 10)
+	this.So(identity, should.Equal, 42)
+	this.So(err, should.BeNil)
+	this.So(this.inner.executeCalls, should.Equal, 2)
+	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
+}

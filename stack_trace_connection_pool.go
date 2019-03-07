@@ -25,12 +25,13 @@ func (this *StackTraceConnectionPool) Close() error {
 	return this.Wrap(this.inner.Close())
 }
 
-func (this *StackTraceConnectionPool) Execute(query string, parameters ...interface{}) (uint64, error) {
-	rows, err := this.inner.Execute(query, parameters...)
-	return rows, this.Wrap(err)
+func (this *StackTraceConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	affected, _, err := this.ExecuteIdentity(statement, parameters...)
+	return affected, err
 }
 func (this *StackTraceConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	affected, identity, err := this.inner.ExecuteIdentity(statement, parameters...)
+	return affected, identity, this.Wrap(err)
 }
 
 func (this *StackTraceConnectionPool) Select(query string, parameters ...interface{}) (SelectResult, error) {

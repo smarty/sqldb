@@ -70,6 +70,19 @@ func (this *RetryBindingConnectionPoolFixture) TestExecute() {
 	this.So(this.inner.executeCalls, should.Equal, 1)
 	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
 }
+func (this *RetryBindingConnectionPoolFixture) TestExecuteIdentity() {
+	this.inner.executeResult = 42
+	this.inner.executeIdentity = 47
+	this.inner.executeError = errors.New("")
+
+	affected, identity, err := this.pool.ExecuteIdentity("statement", 1, 2, 3)
+
+	this.So(affected, should.Equal, 42)
+	this.So(identity, should.Equal, 47)
+	this.So(err, should.Equal, this.inner.executeError)
+	this.So(this.inner.executeCalls, should.Equal, 1)
+	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
+}
 
 func (this *RetryBindingConnectionPoolFixture) TestBindSelect() {
 	this.inner.selectResult = &FakeSelectResult{}

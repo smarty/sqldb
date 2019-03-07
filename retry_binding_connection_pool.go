@@ -30,7 +30,7 @@ func (this *RetryBindingConnectionPool) Execute(statement string, parameters ...
 	return this.inner.Execute(statement, parameters...)
 }
 func (this *RetryBindingConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	return this.inner.ExecuteIdentity(statement, parameters...)
 }
 
 func (this *RetryBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {

@@ -18,7 +18,7 @@ type (
 
 	Executor interface {
 		Execute(string, ...interface{}) (uint64, error)
-		ExecuteIdentity(string, ...interface{}) (uint64, uint64, error)
+		ExecuteIdentity(string, ...interface{}) (affected uint64, identity uint64, err error)
 	}
 
 	Selector interface {

@@ -24,6 +24,7 @@ type FakeConnectionPool struct {
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
+	executeIdentity   uint64
 	executeResult     uint64
 	executeError      error
 }
@@ -50,7 +51,10 @@ func (this *FakeConnectionPool) Execute(statement string, parameters ...interfac
 	return this.executeResult, this.executeError
 }
 func (this *FakeConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeIdentity, this.executeError
 }
 
 func (this *FakeConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
@@ -78,6 +82,7 @@ type FakeTransaction struct {
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
+	executeIdentity   uint64
 	executeResult     uint64
 	executeError      error
 }
@@ -99,7 +104,10 @@ func (this *FakeTransaction) Execute(statement string, parameters ...interface{}
 	return this.executeResult, this.executeError
 }
 func (this *FakeTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeIdentity, this.executeError
 }
 
 func (this *FakeTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
@@ -147,23 +155,24 @@ func (this *FakeSelectResult) Scan(target ...interface{}) error {
 
 type FakeExecutor struct {
 	affected       uint64
+	identity       uint64
 	errorsToReturn []error
 	statements     []string
 	parameters     [][]interface{}
 }
 
 func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
+	panic("should not be called")
+}
+func (this *FakeExecutor) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
 	this.statements = append(this.statements, strings.TrimSpace(statement))
 	this.parameters = append(this.parameters, parameters)
 
 	if len(this.statements) <= len(this.errorsToReturn) {
-		return this.affected, this.errorsToReturn[len(this.statements)-1]
+		return this.affected, this.identity, this.errorsToReturn[len(this.statements)-1]
 	}
 
-	return this.affected, nil
-}
-func (this *FakeExecutor) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	return this.affected, this.identity, nil
 }
 
 ///////////////////////////////////////////////////////////////
@@ -190,6 +199,7 @@ type FakeBindingConnectionPool struct {
 	executeStatement  string
 	executeParameters []interface{}
 	executeResult     uint64
+	executeIdentity   uint64
 	executeError      error
 }
 
@@ -215,7 +225,10 @@ func (this *FakeBindingConnectionPool) Execute(statement string, parameters ...i
 	return this.executeResult, this.executeError
 }
 func (this *FakeBindingConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeIdentity, this.executeError
 }
 
 func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
@@ -229,52 +242,25 @@ func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement strin
 ///////////////////////////////////////////////////////////////
 
 type FakeBindingTransaction struct {
-	commitCalls int
-	commitError error
-
-	rollbackCalls int
-	rollbackError error
-
-	selectCalls      int
-	selectBinder     Binder
-	selectStatement  string
-	selectParameters []interface{}
-	selectResult     *FakeSelectResult
-	selectError      error
-
-	executeCalls      int
-	executeStatement  string
-	executeParameters []interface{}
-	executeResult     uint64
-	executeError      error
 }
 
 func (this *FakeBindingTransaction) Commit() error {
-	this.commitCalls++
-	return this.commitError
+	panic("Not called")
 }
 
 func (this *FakeBindingTransaction) Rollback() error {
-	this.rollbackCalls++
-	return this.rollbackError
+	panic("Not called")
 }
 
 func (this *FakeBindingTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	this.executeCalls++
-	this.executeStatement = statement
-	this.executeParameters = parameters
-	return this.executeResult, this.executeError
+	panic("Not called")
 }
 func (this *FakeBindingTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	panic("not implemented")
+	panic("Not called")
 }
 
 func (this *FakeBindingTransaction) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
-	this.selectCalls++
-	this.selectBinder = binder
-	this.selectStatement = statement
-	this.selectParameters = parameters
-	return this.selectError
+	panic("Not called")
 }
 
 ///////////////////////////////////////////////////////////////
