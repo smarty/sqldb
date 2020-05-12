@@ -1,4 +1,4 @@
-module github.com/smartystreets/sqldb
+module github.com/smartystreets/sqldb/v2
 
 go 1.13
 

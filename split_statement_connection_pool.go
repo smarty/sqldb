@@ -33,9 +33,6 @@ func (this *SplitStatementConnectionPool) Close() error {
 func (this *SplitStatementConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
 	return this.executor.Execute(statement, parameters...)
 }
-func (this *SplitStatementConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	return this.executor.ExecuteIdentity(statement, parameters...)
-}
 
 func (this *SplitStatementConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
 	return this.inner.Select(statement, parameters...)

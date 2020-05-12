@@ -56,21 +56,6 @@ func (this *StackTraceTransactionFixture) TestExecute() {
 	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *StackTraceTransactionFixture) TestExecuteIdentity() {
-	this.inner.executeError = errors.New("ERROR")
-	this.inner.executeResult = 42
-	this.inner.executeIdentity = 47
-
-	affected, identity, err := this.transaction.ExecuteIdentity("STATEMENT", 1, 2, 3)
-
-	this.So(affected, should.Equal, 42)
-	this.So(identity, should.Equal, 47)
-	this.So(err.Error(), should.Equal, "ERROR\nStack Trace:\nSTACK")
-	this.So(this.inner.executeCalls, should.Equal, 1)
-	this.So(this.inner.executeStatement, should.Equal, "STATEMENT")
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
-}
-
 func (this *StackTraceTransactionFixture) TestSelect() {
 	expectedResult := new(FakeSelectResult)
 	this.inner.selectResult = expectedResult

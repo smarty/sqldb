@@ -75,18 +75,6 @@ func (this *SplitStatementConnectionPoolFixture) TestExecute() {
 	this.So(this.inner.executeCalls, should.Equal, 2)
 	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
 }
-func (this *SplitStatementConnectionPoolFixture) TestExecuteIdentity() {
-	this.inner.executeResult = 5
-	this.inner.executeIdentity = 17
-
-	affected, identity, err := this.pool.ExecuteIdentity("statement1 ?; statement2 ? ?;", 1, 2, 3)
-
-	this.So(affected, should.Equal, 10)
-	this.So(identity, should.Equal, 17)
-	this.So(err, should.BeNil)
-	this.So(this.inner.executeCalls, should.Equal, 2)
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
-}
 
 func (this *SplitStatementConnectionPoolFixture) TestSelect() {
 	this.inner.selectError = errors.New("")

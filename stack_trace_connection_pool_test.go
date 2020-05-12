@@ -95,20 +95,6 @@ func (this *StackTraceConnectionPoolFixture) TestExecute_WhenSuccessful_NoStackT
 	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
 }
 
-func (this *StackTraceConnectionPoolFixture) TestExecuteIdentity() {
-	this.pool.executeResult = 42
-	this.pool.executeIdentity = 47
-
-	result, identity, err := this.adapter.ExecuteIdentity("QUERY", 1, 2, 3)
-
-	this.So(result, should.Equal, 42)
-	this.So(identity, should.Equal, 47)
-	this.So(err, should.BeNil)
-	this.So(this.pool.executeCalls, should.Equal, 1)
-	this.So(this.pool.executeStatement, should.Equal, "QUERY")
-	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
-}
-
 func (this *StackTraceConnectionPoolFixture) TestExecute_WhenFails_StackTraceAppendedToErr() {
 	this.pool.executeError = errors.New("EXECUTE ERROR")
 	this.pool.executeResult = 42

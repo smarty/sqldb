@@ -24,7 +24,6 @@ type FakeConnectionPool struct {
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
-	executeIdentity   uint64
 	executeResult     uint64
 	executeError      error
 }
@@ -49,12 +48,6 @@ func (this *FakeConnectionPool) Execute(statement string, parameters ...interfac
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
-}
-func (this *FakeConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	this.executeCalls++
-	this.executeStatement = statement
-	this.executeParameters = parameters
-	return this.executeResult, this.executeIdentity, this.executeError
 }
 
 func (this *FakeConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
@@ -82,7 +75,6 @@ type FakeTransaction struct {
 	executeCalls      int
 	executeStatement  string
 	executeParameters []interface{}
-	executeIdentity   uint64
 	executeResult     uint64
 	executeError      error
 }
@@ -102,12 +94,6 @@ func (this *FakeTransaction) Execute(statement string, parameters ...interface{}
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
-}
-func (this *FakeTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	this.executeCalls++
-	this.executeStatement = statement
-	this.executeParameters = parameters
-	return this.executeResult, this.executeIdentity, this.executeError
 }
 
 func (this *FakeTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
@@ -155,24 +141,20 @@ func (this *FakeSelectResult) Scan(target ...interface{}) error {
 
 type FakeExecutor struct {
 	affected       uint64
-	identity       uint64
 	errorsToReturn []error
 	statements     []string
 	parameters     [][]interface{}
 }
 
 func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	panic("should not be called")
-}
-func (this *FakeExecutor) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
 	this.statements = append(this.statements, strings.TrimSpace(statement))
 	this.parameters = append(this.parameters, parameters)
 
 	if len(this.statements) <= len(this.errorsToReturn) {
-		return this.affected, this.identity, this.errorsToReturn[len(this.statements)-1]
+		return this.affected, this.errorsToReturn[len(this.statements)-1]
 	}
 
-	return this.affected, this.identity, nil
+	return this.affected, nil
 }
 
 ///////////////////////////////////////////////////////////////
@@ -199,7 +181,6 @@ type FakeBindingConnectionPool struct {
 	executeStatement  string
 	executeParameters []interface{}
 	executeResult     uint64
-	executeIdentity   uint64
 	executeError      error
 }
 
@@ -224,12 +205,6 @@ func (this *FakeBindingConnectionPool) Execute(statement string, parameters ...i
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
-func (this *FakeBindingConnectionPool) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	this.executeCalls++
-	this.executeStatement = statement
-	this.executeParameters = parameters
-	return this.executeResult, this.executeIdentity, this.executeError
-}
 
 func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
 	this.selectCalls++
@@ -253,9 +228,6 @@ func (this *FakeBindingTransaction) Rollback() error {
 }
 
 func (this *FakeBindingTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	panic("Not called")
-}
-func (this *FakeBindingTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
 	panic("Not called")
 }
 

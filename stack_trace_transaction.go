@@ -18,12 +18,8 @@ func (this *StackTraceTransaction) Rollback() error {
 }
 
 func (this *StackTraceTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	affected, _, err := this.ExecuteIdentity(statement, parameters...)
-	return affected, err
-}
-func (this *StackTraceTransaction) ExecuteIdentity(statement string, parameters ...interface{}) (uint64, uint64, error) {
-	affected, identity, err := this.inner.ExecuteIdentity(statement, parameters...)
-	return affected, identity, this.Wrap(err)
+	affected, err := this.inner.Execute(statement, parameters...)
+	return affected, this.Wrap(err)
 }
 
 func (this *StackTraceTransaction) Select(statement string, args ...interface{}) (SelectResult, error) {

@@ -32,15 +32,6 @@ func (this *LibraryConnectionPoolAdapter) Execute(query string, parameters ...in
 		return uint64(count), nil
 	}
 }
-func (this *LibraryConnectionPoolAdapter) ExecuteIdentity(query string, parameters ...interface{}) (uint64, uint64, error) {
-	if result, err := this.inner.Exec(query, parameters...); err != nil {
-		return 0, 0, err
-	} else {
-		count, _ := result.RowsAffected()
-		identity, _ := result.LastInsertId()
-		return uint64(count), uint64(identity), nil
-	}
-}
 
 func (this *LibraryConnectionPoolAdapter) Select(query string, parameters ...interface{}) (SelectResult, error) {
 	return this.inner.Query(query, parameters...)
