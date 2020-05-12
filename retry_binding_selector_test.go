@@ -7,7 +7,6 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
-	"github.com/smartystreets/clock"
 	"github.com/smartystreets/gunit"
 )
 
@@ -24,8 +23,7 @@ type RetryBindingSelectorFixture struct {
 
 func (this *RetryBindingSelectorFixture) Setup() {
 	this.inner = &FakeRetrySelector{}
-	this.selector = NewRetryBindingSelector(this.inner, time.Second)
-	this.selector.sleep = clock.StayAwake()
+	this.selector = NewRetryBindingSelector(this.inner, time.Millisecond*3)
 }
 
 ///////////////////////////////////////////////////////////////
@@ -42,16 +40,12 @@ func (this *RetryBindingSelectorFixture) TestSelectWithoutErrors() {
 func (this *RetryBindingSelectorFixture) TestRetryUntilSuccess() {
 	this.inner.errorCount = 4
 
+	started := time.Now().UTC()
 	err := this.selector.BindSelect(nil, "statement", 1, 2, 3)
 
 	this.So(err, should.Equal, err)
-	this.So(this.inner.count, should.Equal, 5) // last attempt is successful
-	this.So(this.selector.sleep.Naps, should.Resemble, []time.Duration{
-		time.Second,
-		time.Second,
-		time.Second,
-		time.Second,
-	})
+	this.So(this.inner.count, should.Equal, 5)                               // last attempt is successful
+	this.So(time.Since(started), should.BeGreaterThan, time.Millisecond*3*4) // 3ms * 4 sleeps
 }
 
 ///////////////////////////////////////////////////////////////

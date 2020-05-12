@@ -2,13 +2,10 @@ package sqldb
 
 import (
 	"time"
-
-	"github.com/smartystreets/clock"
 )
 
 type RetryBindingSelector struct {
 	inner    BindingSelector
-	sleep    *clock.Sleeper
 	duration time.Duration
 }
 
@@ -22,6 +19,6 @@ func (this *RetryBindingSelector) BindSelect(binder Binder, statement string, pa
 			return nil
 		}
 
-		this.sleep.Sleep(this.duration)
+		time.Sleep(this.duration)
 	}
 }

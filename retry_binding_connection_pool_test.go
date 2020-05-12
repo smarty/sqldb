@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/smartystreets/assertions/should"
-	"github.com/smartystreets/clock"
 	"github.com/smartystreets/gunit"
 )
 
@@ -17,16 +16,13 @@ func TestRetryBindingConnectionPoolFixture(t *testing.T) {
 type RetryBindingConnectionPoolFixture struct {
 	*gunit.Fixture
 
-	sleeper *clock.Sleeper
-	inner   *FakeBindingConnectionPool
-	pool    *RetryBindingConnectionPool
+	inner *FakeBindingConnectionPool
+	pool  *RetryBindingConnectionPool
 }
 
 func (this *RetryBindingConnectionPoolFixture) Setup() {
-	this.sleeper = clock.StayAwake()
 	this.inner = &FakeBindingConnectionPool{}
 	this.pool = NewRetryBindingConnectionPool(this.inner, time.Second)
-	this.pool.selector.sleep = this.sleeper
 }
 
 ///////////////////////////////////////////////////////////////
