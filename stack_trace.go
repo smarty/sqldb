@@ -17,7 +17,7 @@ func ContrivedStackTrace(trace string) *StackTrace {
 
 func (this *StackTrace) Wrap(err error) error {
 	if err != nil {
-		err = fmt.Errorf("%s\nStack Trace:\n%s", err.Error(), this.StackTrace())
+		err = fmt.Errorf("%w\nStack Trace:\n%s", err, this.StackTrace())
 	}
 	return err
 }
