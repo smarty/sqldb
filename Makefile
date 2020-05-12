@@ -1,11 +1,14 @@
 #!/usr/bin/make -f
 
-test:
+test: fmt
 	go test -timeout=1s -race -covermode=atomic ./...
+
+fmt:
+	go fmt ./...
 
 compile:
 	go build ./...
 
 build: test compile
 
-.PHONY: test compile build
+.PHONY: test fmt compile build
