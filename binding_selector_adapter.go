@@ -17,12 +17,12 @@ func (this *BindingSelectorAdapter) BindSelect(binder Binder, statement string, 
 
 	for result.Next() {
 		if err := result.Err(); err != nil {
-			result.Close()
+			_ = result.Close()
 			return err
 		}
 
 		if err := binder(result); err != nil {
-			result.Close()
+			_ = result.Close()
 			if this.panicOnBindError {
 				panic(err)
 			} else {

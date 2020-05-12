@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -15,9 +16,8 @@ func NewSplitStatementExecutor(actual Executor, delimiter string) *SplitStatemen
 }
 
 func (this *SplitStatementExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	// TODO
 	if argumentCount := strings.Count(statement, this.delimiter); argumentCount != len(parameters) {
-		return 0, fmt.Errorf("Not enough arguments supplied for the statement. Expected: %d, received: %d", argumentCount, len(parameters))
+		return 0, fmt.Errorf("%w: Expected: %d, received %d", ErrArgumentCountMismatch, argumentCount, len(parameters))
 	}
 
 	var count uint64
@@ -40,3 +40,5 @@ func (this *SplitStatementExecutor) Execute(statement string, parameters ...inte
 
 	return count, nil
 }
+
+var ErrArgumentCountMismatch = errors.New("the number of arguments supplied does not match the statement")
