@@ -1,31 +1,33 @@
 package sqldb
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+)
 
 type LibraryConnectionPoolAdapter struct {
-	inner *sql.DB
+	*sql.DB
+	txOptions *sql.TxOptions
 }
 
-func NewLibraryConnectionPoolAdapter(actual *sql.DB) *LibraryConnectionPoolAdapter {
-	return &LibraryConnectionPoolAdapter{inner: actual}
+func NewLibraryConnectionPoolAdapter(actual *sql.DB, txOptions *sql.TxOptions) *LibraryConnectionPoolAdapter {
+	return &LibraryConnectionPoolAdapter{DB: actual, txOptions: txOptions}
 }
 
-func (this *LibraryConnectionPoolAdapter) Ping() error {
-	return this.inner.Ping()
+func (this *LibraryConnectionPoolAdapter) Ping(ctx context.Context) error {
+	return this.DB.PingContext(ctx)
 }
-func (this *LibraryConnectionPoolAdapter) BeginTransaction() (Transaction, error) {
-	if tx, err := this.inner.Begin(); err == nil {
+
+func (this *LibraryConnectionPoolAdapter) BeginTransaction(ctx context.Context) (Transaction, error) {
+	if tx, err := this.DB.BeginTx(ctx, this.txOptions); err == nil {
 		return NewLibraryTransactionAdapter(tx), nil
 	} else {
 		return nil, err
 	}
 }
-func (this *LibraryConnectionPoolAdapter) Close() error {
-	return this.inner.Close()
-}
 
-func (this *LibraryConnectionPoolAdapter) Execute(query string, parameters ...interface{}) (uint64, error) {
-	if result, err := this.inner.Exec(query, parameters...); err != nil {
+func (this *LibraryConnectionPoolAdapter) Execute(ctx context.Context, query string, parameters ...interface{}) (uint64, error) {
+	if result, err := this.DB.ExecContext(ctx, query, parameters...); err != nil {
 		return 0, err
 	} else {
 		count, _ := result.RowsAffected()
@@ -33,6 +35,6 @@ func (this *LibraryConnectionPoolAdapter) Execute(query string, parameters ...in
 	}
 }
 
-func (this *LibraryConnectionPoolAdapter) Select(query string, parameters ...interface{}) (SelectResult, error) {
-	return this.inner.Query(query, parameters...)
+func (this *LibraryConnectionPoolAdapter) Select(ctx context.Context, query string, parameters ...interface{}) (SelectResult, error) {
+	return this.DB.QueryContext(ctx, query, parameters...)
 }

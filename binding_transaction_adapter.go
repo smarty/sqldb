@@ -1,29 +1,19 @@
 package sqldb
 
+import "context"
+
 type BindingTransactionAdapter struct {
-	inner    Transaction
+	Transaction
 	selector BindingSelector
 }
 
 func NewBindingTransactionAdapter(actual Transaction, panicOnBindError bool) *BindingTransactionAdapter {
 	return &BindingTransactionAdapter{
-		inner:    actual,
-		selector: NewBindingSelectorAdapter(actual, panicOnBindError),
+		Transaction: actual,
+		selector:    NewBindingSelectorAdapter(actual, panicOnBindError),
 	}
 }
 
-func (this *BindingTransactionAdapter) Commit() error {
-	return this.inner.Commit()
-}
-
-func (this *BindingTransactionAdapter) Rollback() error {
-	return this.inner.Rollback()
-}
-
-func (this *BindingTransactionAdapter) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	return this.inner.Execute(statement, parameters...)
-}
-
-func (this *BindingTransactionAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
-	return this.selector.BindSelect(binder, statement, parameters...)
+func (this *BindingTransactionAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+	return this.selector.BindSelect(ctx, binder, statement, parameters...)
 }

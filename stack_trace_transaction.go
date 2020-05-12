@@ -1,5 +1,7 @@
 package sqldb
 
+import "context"
+
 type StackTraceTransaction struct {
 	*StackTrace
 	inner Transaction
@@ -17,12 +19,12 @@ func (this *StackTraceTransaction) Rollback() error {
 	return this.Wrap(this.inner.Rollback())
 }
 
-func (this *StackTraceTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	affected, err := this.inner.Execute(statement, parameters...)
+func (this *StackTraceTransaction) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
+	affected, err := this.inner.Execute(ctx, statement, parameters...)
 	return affected, this.Wrap(err)
 }
 
-func (this *StackTraceTransaction) Select(statement string, args ...interface{}) (SelectResult, error) {
-	result, err := this.inner.Select(statement, args...)
+func (this *StackTraceTransaction) Select(ctx context.Context, statement string, args ...interface{}) (SelectResult, error) {
+	result, err := this.inner.Select(ctx, statement, args...)
 	return result, this.Wrap(err)
 }

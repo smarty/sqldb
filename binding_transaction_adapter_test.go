@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -48,7 +49,7 @@ func (this *BindingTransactionAdapterFixture) TestExecute() {
 	this.inner.executeResult = 42
 	this.inner.executeError = errors.New("")
 
-	affected, err := this.transaction.Execute("statement")
+	affected, err := this.transaction.Execute(context.Background(), "statement")
 
 	this.So(affected, should.Equal, this.inner.executeResult)
 	this.So(err, should.Equal, this.inner.executeError)
@@ -59,7 +60,7 @@ func (this *BindingTransactionAdapterFixture) TestExecute() {
 func (this *BindingTransactionAdapterFixture) TestBindSelect() {
 	this.inner.selectError = errors.New("")
 
-	err := this.transaction.BindSelect(nil, "query", 1, 2, 3)
+	err := this.transaction.BindSelect(context.Background(), nil, "query", 1, 2, 3)
 
 	this.So(err, should.Equal, this.inner.selectError)
 	this.So(this.inner.selectCalls, should.Equal, 1)

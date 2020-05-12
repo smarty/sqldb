@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"testing"
@@ -30,14 +31,14 @@ func (this *BindingConnectionPoolAdapterFixture) Setup() {
 func (this *BindingConnectionPoolAdapterFixture) TestPing() {
 	this.inner.pingError = errors.New("")
 
-	err := this.pool.Ping()
+	err := this.pool.Ping(context.Background())
 
 	this.So(err, should.Equal, this.inner.pingError)
 	this.So(this.inner.pingCalls, should.Equal, 1)
 }
 
 func (this *BindingConnectionPoolAdapterFixture) TestBeginTransaction() {
-	transaction, err := this.pool.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction(context.Background())
 
 	this.So(transaction, should.NotBeNil)
 	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&BindingTransactionAdapter{}))
@@ -47,7 +48,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestBeginTransaction() {
 func (this *BindingConnectionPoolAdapterFixture) TestBeginFailedTransaction() {
 	this.inner.transactionError = errors.New("")
 
-	transaction, err := this.pool.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction(context.Background())
 
 	this.So(transaction, should.BeNil)
 	this.So(err, should.Equal, this.inner.transactionError)
@@ -66,7 +67,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 	this.inner.executeResult = 42
 	this.inner.executeError = errors.New("")
 
-	affected, err := this.pool.Execute("statement")
+	affected, err := this.pool.Execute(context.Background(), "statement")
 
 	this.So(affected, should.Equal, this.inner.executeResult)
 	this.So(err, should.Equal, this.inner.executeError)
@@ -77,7 +78,7 @@ func (this *BindingConnectionPoolAdapterFixture) TestExecute() {
 func (this *BindingConnectionPoolAdapterFixture) TestBindSelect() {
 	this.inner.selectError = errors.New("")
 
-	err := this.pool.BindSelect(nil, "query", 1, 2, 3)
+	err := this.pool.BindSelect(context.Background(), nil, "query", 1, 2, 3)
 
 	this.So(err, should.Equal, this.inner.selectError)
 	this.So(this.inner.selectCalls, should.Equal, 1)

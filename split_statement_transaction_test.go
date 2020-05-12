@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -48,7 +49,7 @@ func (this *SplitStatementTransactionFixture) TestSelect() {
 	this.inner.selectError = errors.New("")
 	this.inner.selectResult = &FakeSelectResult{}
 
-	result, err := this.transaction.Select("query", 1, 2, 3)
+	result, err := this.transaction.Select(context.Background(), "query", 1, 2, 3)
 
 	this.So(result, should.Equal, this.inner.selectResult)
 	this.So(err, should.Equal, this.inner.selectError)
@@ -60,7 +61,7 @@ func (this *SplitStatementTransactionFixture) TestSelect() {
 func (this *SplitStatementTransactionFixture) TestExecute() {
 	this.inner.executeResult = 5
 
-	affected, err := this.transaction.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
+	affected, err := this.transaction.Execute(context.Background(), "statement1 ?; statement2 ? ?;", 1, 2, 3)
 
 	this.So(affected, should.Equal, 10)
 	this.So(err, should.BeNil)

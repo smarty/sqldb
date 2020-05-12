@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -30,7 +31,7 @@ func (this *RetryBindingConnectionPoolFixture) Setup() {
 func (this *RetryBindingConnectionPoolFixture) TestPing() {
 	this.inner.pingError = errors.New("")
 
-	err := this.pool.Ping()
+	err := this.pool.Ping(context.Background())
 
 	this.So(err, should.Equal, this.inner.pingError)
 	this.So(this.inner.pingCalls, should.Equal, 1)
@@ -39,7 +40,7 @@ func (this *RetryBindingConnectionPoolFixture) TestPing() {
 func (this *RetryBindingConnectionPoolFixture) TestBeginTransaction() {
 	this.inner.transaction = &FakeBindingTransaction{}
 
-	transaction, err := this.pool.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction(context.Background())
 
 	this.So(transaction, should.Equal, this.inner.transaction)
 	this.So(err, should.BeNil)
@@ -59,7 +60,7 @@ func (this *RetryBindingConnectionPoolFixture) TestExecute() {
 	this.inner.executeResult = 42
 	this.inner.executeError = errors.New("")
 
-	affected, err := this.pool.Execute("statement", 1, 2, 3)
+	affected, err := this.pool.Execute(context.Background(), "statement", 1, 2, 3)
 
 	this.So(affected, should.Equal, 42)
 	this.So(err, should.Equal, this.inner.executeError)
@@ -70,7 +71,7 @@ func (this *RetryBindingConnectionPoolFixture) TestExecute() {
 func (this *RetryBindingConnectionPoolFixture) TestBindSelect() {
 	this.inner.selectResult = &FakeSelectResult{}
 
-	err := this.pool.BindSelect(func(Scanner) error {
+	err := this.pool.BindSelect(context.Background(), func(Scanner) error {
 		return nil
 	}, "query", 1, 2, 3)
 

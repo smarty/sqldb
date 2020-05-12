@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -29,7 +30,7 @@ func (this *RetryBindingSelectorFixture) Setup() {
 ///////////////////////////////////////////////////////////////
 
 func (this *RetryBindingSelectorFixture) TestSelectWithoutErrors() {
-	err := this.selector.BindSelect(nil, "statement", 1, 2, 3)
+	err := this.selector.BindSelect(context.Background(), nil, "statement", 1, 2, 3)
 
 	this.So(err, should.Equal, err)
 	this.So(this.inner.count, should.Equal, 1)
@@ -41,7 +42,7 @@ func (this *RetryBindingSelectorFixture) TestRetryUntilSuccess() {
 	this.inner.errorCount = 4
 
 	started := time.Now().UTC()
-	err := this.selector.BindSelect(nil, "statement", 1, 2, 3)
+	err := this.selector.BindSelect(context.Background(), nil, "statement", 1, 2, 3)
 
 	this.So(err, should.Equal, err)
 	this.So(this.inner.count, should.Equal, 5)                               // last attempt is successful
@@ -58,11 +59,11 @@ type FakeRetrySelector struct {
 	parameters []interface{}
 }
 
-func (this *FakeRetrySelector) Ping() error {
+func (this *FakeRetrySelector) Ping(_ context.Context) error {
 	panic("Should not be called.")
 }
 
-func (this *FakeRetrySelector) BeginTransaction() (BindingTransaction, error) {
+func (this *FakeRetrySelector) BeginTransaction(_ context.Context) (BindingTransaction, error) {
 	panic("Should not be called.")
 }
 
@@ -70,7 +71,7 @@ func (this *FakeRetrySelector) Close() error {
 	panic("Should not be called.")
 }
 
-func (this *FakeRetrySelector) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+func (this *FakeRetrySelector) BindSelect(_ context.Context, binder Binder, statement string, parameters ...interface{}) error {
 	if this.binder == nil {
 		this.binder = binder
 	} else {
@@ -97,6 +98,6 @@ func (this *FakeRetrySelector) BindSelect(binder Binder, statement string, param
 	}
 }
 
-func (this *FakeRetrySelector) Execute(string, ...interface{}) (uint64, error) {
+func (this *FakeRetrySelector) Execute(_ context.Context, _ string, _ ...interface{}) (uint64, error) {
 	panic("Should not be called.")
 }

@@ -1,9 +1,11 @@
 package sqldb
 
+import "context"
+
 type (
 	ConnectionPool interface {
-		Ping() error
-		BeginTransaction() (Transaction, error)
+		Ping(context.Context) error
+		BeginTransaction(context.Context) (Transaction, error)
 		Close() error
 		Executor
 		Selector
@@ -17,11 +19,11 @@ type (
 	}
 
 	Executor interface {
-		Execute(string, ...interface{}) (uint64, error)
+		Execute(context.Context, string, ...interface{}) (uint64, error)
 	}
 
 	Selector interface {
-		Select(string, ...interface{}) (SelectResult, error)
+		Select(context.Context, string, ...interface{}) (SelectResult, error)
 	}
 
 	SelectExecutor interface {
@@ -43,8 +45,8 @@ type (
 
 type (
 	BindingConnectionPool interface {
-		Ping() error
-		BeginTransaction() (BindingTransaction, error)
+		Ping(context.Context) error
+		BeginTransaction(context.Context) (BindingTransaction, error)
 		Close() error
 		Executor
 		BindingSelector
@@ -58,7 +60,7 @@ type (
 	}
 
 	BindingSelector interface {
-		BindSelect(Binder, string, ...interface{}) error
+		BindSelect(context.Context, Binder, string, ...interface{}) error
 	}
 
 	Binder func(Scanner) error

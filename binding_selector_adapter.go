@@ -1,5 +1,7 @@
 package sqldb
 
+import "context"
+
 type BindingSelectorAdapter struct {
 	selector         Selector
 	panicOnBindError bool
@@ -9,8 +11,8 @@ func NewBindingSelectorAdapter(selector Selector, panicOnBindError bool) *Bindin
 	return &BindingSelectorAdapter{selector: selector, panicOnBindError: panicOnBindError}
 }
 
-func (this *BindingSelectorAdapter) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
-	result, err := this.selector.Select(statement, parameters...)
+func (this *BindingSelectorAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+	result, err := this.selector.Select(ctx, statement, parameters...)
 	if err != nil {
 		return err
 	}

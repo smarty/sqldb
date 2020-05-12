@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -26,7 +27,7 @@ func (this *StackTraceConnectionPoolFixture) Setup() {
 }
 
 func (this *StackTraceConnectionPoolFixture) TestPing_WhenSuccessful_NoStackTraceIncluded() {
-	err := this.adapter.Ping()
+	err := this.adapter.Ping(context.Background())
 
 	this.So(err, should.BeNil)
 	this.So(this.pool.pingCalls, should.Equal, 1)
@@ -35,7 +36,7 @@ func (this *StackTraceConnectionPoolFixture) TestPing_WhenSuccessful_NoStackTrac
 func (this *StackTraceConnectionPoolFixture) TestPing_WhenFails_StackTraceAppendedToErr() {
 	this.pool.pingError = errors.New("PING ERROR")
 
-	err := this.adapter.Ping()
+	err := this.adapter.Ping(context.Background())
 
 	this.So(this.pool.pingCalls, should.Equal, 1)
 	this.So(err, should.NotBeNil)
@@ -63,7 +64,7 @@ func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenSuccessful
 	transaction := new(FakeTransaction)
 	this.pool.transaction = transaction
 
-	tx, err := this.adapter.BeginTransaction()
+	tx, err := this.adapter.BeginTransaction(context.Background())
 
 	this.So(err, should.BeNil)
 	this.So(this.pool.transactionCalls, should.Equal, 1)
@@ -75,7 +76,7 @@ func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenFails_Stac
 	this.pool.transaction = transaction
 	this.pool.transactionError = errors.New("TX ERROR")
 
-	tx, err := this.adapter.BeginTransaction()
+	tx, err := this.adapter.BeginTransaction(context.Background())
 
 	this.So(this.pool.transactionCalls, should.Equal, 1)
 	this.So(tx, should.BeNil)
@@ -86,7 +87,7 @@ func (this *StackTraceConnectionPoolFixture) TestBeginTransaction_WhenFails_Stac
 func (this *StackTraceConnectionPoolFixture) TestExecute_WhenSuccessful_NoStackTraceIncluded() {
 	this.pool.executeResult = 42
 
-	result, err := this.adapter.Execute("QUERY", 1, 2, 3)
+	result, err := this.adapter.Execute(context.Background(), "QUERY", 1, 2, 3)
 
 	this.So(result, should.Equal, 42)
 	this.So(err, should.BeNil)
@@ -99,7 +100,7 @@ func (this *StackTraceConnectionPoolFixture) TestExecute_WhenFails_StackTraceApp
 	this.pool.executeError = errors.New("EXECUTE ERROR")
 	this.pool.executeResult = 42
 
-	result, err := this.adapter.Execute("QUERY", 1, 2, 3)
+	result, err := this.adapter.Execute(context.Background(), "QUERY", 1, 2, 3)
 
 	this.So(result, should.Equal, 42)
 	this.So(err, should.NotBeNil)
@@ -113,7 +114,7 @@ func (this *StackTraceConnectionPoolFixture) TestSelect_WhenSuccessful_NoStackTr
 	expectedResult := new(FakeSelectResult)
 	this.pool.selectResult = expectedResult
 
-	result, err := this.adapter.Select("QUERY", 1, 2, 3)
+	result, err := this.adapter.Select(context.Background(), "QUERY", 1, 2, 3)
 
 	this.So(result, should.Equal, expectedResult)
 	this.So(err, should.BeNil)
@@ -127,7 +128,7 @@ func (this *StackTraceConnectionPoolFixture) TestSelect_WhenFails_StackTraceAppe
 	this.pool.selectResult = expectedResult
 	this.pool.selectError = errors.New("SELECT ERROR")
 
-	result, err := this.adapter.Select("QUERY", 1, 2, 3)
+	result, err := this.adapter.Select(context.Background(), "QUERY", 1, 2, 3)
 
 	this.So(result, should.Equal, expectedResult)
 	this.So(err, should.NotBeNil)

@@ -1,35 +1,25 @@
 package sqldb
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type RetryBindingConnectionPool struct {
-	inner    BindingConnectionPool
+	BindingConnectionPool
 	selector *RetryBindingSelector
 }
 
 func NewRetryBindingConnectionPool(inner BindingConnectionPool, sleep time.Duration) *RetryBindingConnectionPool {
 	return &RetryBindingConnectionPool{
-		inner:    inner,
-		selector: NewRetryBindingSelector(inner, sleep),
+		BindingConnectionPool: inner,
+		selector:              NewRetryBindingSelector(inner, sleep),
 	}
 }
 
-func (this *RetryBindingConnectionPool) Ping() error {
-	return this.inner.Ping()
-}
+// This does not implement an override of BeginTransaction because retry makes no sense within the concept of
+// a transaction. If the tx fails, it's done.
 
-func (this *RetryBindingConnectionPool) BeginTransaction() (BindingTransaction, error) {
-	return this.inner.BeginTransaction()
-}
-
-func (this *RetryBindingConnectionPool) Close() error {
-	return this.inner.Close()
-}
-
-func (this *RetryBindingConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
-	return this.inner.Execute(statement, parameters...)
-}
-
-func (this *RetryBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
-	return this.selector.BindSelect(binder, statement, parameters...)
+func (this *RetryBindingConnectionPool) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+	return this.selector.BindSelect(ctx, binder, statement, parameters...)
 }

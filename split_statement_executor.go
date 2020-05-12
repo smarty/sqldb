@@ -1,21 +1,22 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 )
 
 type SplitStatementExecutor struct {
-	actual    Executor
+	Executor
 	delimiter string
 }
 
 func NewSplitStatementExecutor(actual Executor, delimiter string) *SplitStatementExecutor {
-	return &SplitStatementExecutor{actual: actual, delimiter: delimiter}
+	return &SplitStatementExecutor{Executor: actual, delimiter: delimiter}
 }
 
-func (this *SplitStatementExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *SplitStatementExecutor) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
 	if argumentCount := strings.Count(statement, this.delimiter); argumentCount != len(parameters) {
 		return 0, fmt.Errorf("%w: Expected: %d, received %d", ErrArgumentCountMismatch, argumentCount, len(parameters))
 	}
@@ -29,7 +30,7 @@ func (this *SplitStatementExecutor) Execute(statement string, parameters ...inte
 
 		statement += ";" // terminate the statement
 		indexOffset := strings.Count(statement, this.delimiter)
-		if affected, err := this.actual.Execute(statement, parameters[index:index+indexOffset]...); err != nil {
+		if affected, err := this.Executor.Execute(ctx, statement, parameters[index:index+indexOffset]...); err != nil {
 			return 0, err
 		} else {
 			count += affected

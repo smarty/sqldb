@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -47,7 +48,7 @@ func (this *StackTraceTransactionFixture) TestExecute() {
 	this.inner.executeError = errors.New("ERROR")
 	this.inner.executeResult = 42
 
-	rows, err := this.transaction.Execute("STATEMENT", 1, 2, 3)
+	rows, err := this.transaction.Execute(context.Background(), "STATEMENT", 1, 2, 3)
 
 	this.So(rows, should.Equal, 42)
 	this.So(err.Error(), should.Equal, "ERROR\nStack Trace:\nSTACK")
@@ -61,7 +62,7 @@ func (this *StackTraceTransactionFixture) TestSelect() {
 	this.inner.selectResult = expectedResult
 	this.inner.selectError = errors.New("ERROR")
 
-	result, err := this.transaction.Select("STATEMENT", 1, 2, 3)
+	result, err := this.transaction.Select(context.Background(), "STATEMENT", 1, 2, 3)
 
 	this.So(result, should.Equal, expectedResult)
 	this.So(err.Error(), should.Equal, "ERROR\nStack Trace:\nSTACK")

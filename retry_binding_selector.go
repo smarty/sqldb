@@ -1,24 +1,25 @@
 package sqldb
 
 import (
+	"context"
 	"time"
 )
 
 type RetryBindingSelector struct {
-	inner    BindingSelector
+	BindingSelector
 	duration time.Duration
 }
 
 func NewRetryBindingSelector(actual BindingConnectionPool, duration time.Duration) *RetryBindingSelector {
-	return &RetryBindingSelector{inner: actual, duration: duration}
+	return &RetryBindingSelector{BindingSelector: actual, duration: duration}
 }
 
-func (this *RetryBindingSelector) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+func (this *RetryBindingSelector) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
 	for {
-		if this.inner.BindSelect(binder, statement, parameters...) == nil {
+		if this.BindingSelector.BindSelect(ctx, binder, statement, parameters...) == nil {
 			return nil
 		}
 
-		time.Sleep(this.duration)
+		time.Sleep(this.duration) // TODO: context.WithTimeout()
 	}
 }

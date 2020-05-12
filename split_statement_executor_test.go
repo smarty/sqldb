@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -29,7 +30,7 @@ func (this *SplitStatementExecutorFixture) Setup() {
 func (this *SplitStatementExecutorFixture) TestStatementAndParameterCountsDoNotMatch() {
 	this.fakeInner.affected = 1
 
-	affected, err := this.executor.Execute("? ? ?")
+	affected, err := this.executor.Execute(context.Background(), "? ? ?")
 
 	this.So(affected, should.Equal, 0)
 	this.So(err, should.NotBeNil)
@@ -38,7 +39,7 @@ func (this *SplitStatementExecutorFixture) TestStatementAndParameterCountsDoNotM
 
 func (this *SplitStatementExecutorFixture) TestSingleStatement() {
 	this.fakeInner.affected = 1
-	affected, err := this.executor.Execute("statement ? ?", 1, 2)
+	affected, err := this.executor.Execute(context.Background(), "statement ? ?", 1, 2)
 
 	this.So(affected, should.Equal, this.fakeInner.affected)
 	this.So(err, should.BeNil)
@@ -47,7 +48,7 @@ func (this *SplitStatementExecutorFixture) TestSingleStatement() {
 }
 
 func (this *SplitStatementExecutorFixture) TestEmptyStatementsAreSkipped() {
-	affected, err := this.executor.Execute(";;;;")
+	affected, err := this.executor.Execute(context.Background(), ";;;;")
 
 	this.So(affected, should.Equal, 0)
 	this.So(err, should.BeNil)
@@ -58,7 +59,7 @@ func (this *SplitStatementExecutorFixture) TestEmptyStatementsAreSkipped() {
 func (this *SplitStatementExecutorFixture) TestMultipleStatements() {
 	this.fakeInner.affected = 2
 
-	affected, err := this.executor.Execute("1 ?; 2 ? ?; 3 ? ? ?", 1, 2, 3, 4, 5, 6)
+	affected, err := this.executor.Execute(context.Background(), "1 ?; 2 ? ?; 3 ? ? ?", 1, 2, 3, 4, 5, 6)
 
 	this.So(affected, should.Equal, this.fakeInner.affected*3)
 	this.So(err, should.BeNil)
@@ -78,7 +79,7 @@ func (this *SplitStatementExecutorFixture) TestFailureAbortsAdditionalStatements
 	this.fakeInner.affected = 10
 	this.fakeInner.errorsToReturn = []error{nil, errors.New("")}
 
-	affected, err := this.executor.Execute("1;2;3")
+	affected, err := this.executor.Execute(context.Background(), "1;2;3")
 
 	this.So(affected, should.Equal, 0)
 	this.So(err, should.Equal, this.fakeInner.errorsToReturn[1])

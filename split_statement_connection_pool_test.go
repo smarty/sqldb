@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"testing"
@@ -30,7 +31,7 @@ func (this *SplitStatementConnectionPoolFixture) Setup() {
 func (this *SplitStatementConnectionPoolFixture) TestPing() {
 	this.inner.pingError = errors.New("")
 
-	err := this.pool.Ping()
+	err := this.pool.Ping(context.Background())
 
 	this.So(err, should.Equal, this.inner.pingError)
 	this.So(this.inner.pingCalls, should.Equal, 1)
@@ -39,7 +40,7 @@ func (this *SplitStatementConnectionPoolFixture) TestPing() {
 func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionFails() {
 	this.inner.transactionError = errors.New("")
 
-	transaction, err := this.pool.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction(context.Background())
 
 	this.So(transaction, should.BeNil)
 	this.So(err, should.Equal, this.inner.transactionError)
@@ -49,7 +50,7 @@ func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionFails() {
 func (this *SplitStatementConnectionPoolFixture) TestBeginTransactionSucceeds() {
 	this.inner.transaction = &FakeTransaction{}
 
-	transaction, err := this.pool.BeginTransaction()
+	transaction, err := this.pool.BeginTransaction(context.Background())
 
 	this.So(reflect.TypeOf(transaction), should.Equal, reflect.TypeOf(&SplitStatementTransaction{}))
 	this.So(err, should.BeNil)
@@ -68,7 +69,7 @@ func (this *SplitStatementConnectionPoolFixture) TestClose() {
 func (this *SplitStatementConnectionPoolFixture) TestExecute() {
 	this.inner.executeResult = 5
 
-	affected, err := this.pool.Execute("statement1 ?; statement2 ? ?;", 1, 2, 3)
+	affected, err := this.pool.Execute(context.Background(), "statement1 ?; statement2 ? ?;", 1, 2, 3)
 
 	this.So(affected, should.Equal, 10)
 	this.So(err, should.BeNil)
@@ -80,7 +81,7 @@ func (this *SplitStatementConnectionPoolFixture) TestSelect() {
 	this.inner.selectError = errors.New("")
 	this.inner.selectResult = &FakeSelectResult{}
 
-	result, err := this.pool.Select("query", 1, 2, 3)
+	result, err := this.pool.Select(context.Background(), "query", 1, 2, 3)
 
 	this.So(result, should.Equal, this.inner.selectResult)
 	this.So(err, should.Equal, this.inner.selectError)

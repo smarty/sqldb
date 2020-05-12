@@ -1,6 +1,9 @@
 package sqldb
 
-import "strings"
+import (
+	"context"
+	"strings"
+)
 
 ///////////////////////////////////////////////////////////////
 
@@ -28,12 +31,12 @@ type FakeConnectionPool struct {
 	executeError      error
 }
 
-func (this *FakeConnectionPool) Ping() error {
+func (this *FakeConnectionPool) Ping(_ context.Context) error {
 	this.pingCalls++
 	return this.pingError
 }
 
-func (this *FakeConnectionPool) BeginTransaction() (Transaction, error) {
+func (this *FakeConnectionPool) BeginTransaction(_ context.Context) (Transaction, error) {
 	this.transactionCalls++
 	return this.transaction, this.transactionError
 }
@@ -43,14 +46,14 @@ func (this *FakeConnectionPool) Close() error {
 	return this.closeError
 }
 
-func (this *FakeConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeConnectionPool) Execute(_ context.Context, statement string, parameters ...interface{}) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
 
-func (this *FakeConnectionPool) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+func (this *FakeConnectionPool) Select(_ context.Context, statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selectCalls++
 	this.selectStatement = statement
 	this.selectParameters = parameters
@@ -89,14 +92,14 @@ func (this *FakeTransaction) Rollback() error {
 	return this.rollbackError
 }
 
-func (this *FakeTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeTransaction) Execute(_ context.Context, statement string, parameters ...interface{}) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
 
-func (this *FakeTransaction) Select(statement string, parameters ...interface{}) (SelectResult, error) {
+func (this *FakeTransaction) Select(_ context.Context, statement string, parameters ...interface{}) (SelectResult, error) {
 	this.selectCalls++
 	this.selectStatement = statement
 	this.selectParameters = parameters
@@ -132,7 +135,7 @@ func (this *FakeSelectResult) Close() error {
 	return this.closeError
 }
 
-func (this *FakeSelectResult) Scan(target ...interface{}) error {
+func (this *FakeSelectResult) Scan(_ ...interface{}) error {
 	this.scanCalls++
 	return this.scanError
 }
@@ -146,7 +149,7 @@ type FakeExecutor struct {
 	parameters     [][]interface{}
 }
 
-func (this *FakeExecutor) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeExecutor) Execute(_ context.Context, statement string, parameters ...interface{}) (uint64, error) {
 	this.statements = append(this.statements, strings.TrimSpace(statement))
 	this.parameters = append(this.parameters, parameters)
 
@@ -184,12 +187,12 @@ type FakeBindingConnectionPool struct {
 	executeError      error
 }
 
-func (this *FakeBindingConnectionPool) Ping() error {
+func (this *FakeBindingConnectionPool) Ping(_ context.Context) error {
 	this.pingCalls++
 	return this.pingError
 }
 
-func (this *FakeBindingConnectionPool) BeginTransaction() (BindingTransaction, error) {
+func (this *FakeBindingConnectionPool) BeginTransaction(_ context.Context) (BindingTransaction, error) {
 	this.transactionCalls++
 	return this.transaction, this.transactionError
 }
@@ -199,14 +202,14 @@ func (this *FakeBindingConnectionPool) Close() error {
 	return this.closeError
 }
 
-func (this *FakeBindingConnectionPool) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeBindingConnectionPool) Execute(_ context.Context, statement string, parameters ...interface{}) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
 	return this.executeResult, this.executeError
 }
 
-func (this *FakeBindingConnectionPool) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+func (this *FakeBindingConnectionPool) BindSelect(_ context.Context, binder Binder, statement string, parameters ...interface{}) error {
 	this.selectCalls++
 	this.selectBinder = binder
 	this.selectStatement = statement
@@ -227,11 +230,11 @@ func (this *FakeBindingTransaction) Rollback() error {
 	panic("Not called")
 }
 
-func (this *FakeBindingTransaction) Execute(statement string, parameters ...interface{}) (uint64, error) {
+func (this *FakeBindingTransaction) Execute(_ context.Context, _ string, _ ...interface{}) (uint64, error) {
 	panic("Not called")
 }
 
-func (this *FakeBindingTransaction) BindSelect(binder Binder, statement string, parameters ...interface{}) error {
+func (this *FakeBindingTransaction) BindSelect(_ context.Context, _ Binder, _ string, _ ...interface{}) error {
 	panic("Not called")
 }
 
