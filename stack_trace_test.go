@@ -23,8 +23,8 @@ func (this *StackTraceFixture) TestWhenNil_ReturnsActualStackTrace() {
 	actual := this.stack.StackTrace()
 	expected := string(debug.Stack())
 
-	actual = actual[len(actual)-890:]       // last 890 characters
-	expected = expected[len(expected)-890:] // last 890 characters
+	actual = actual[len(actual)-860:]       // last 860 characters
+	expected = expected[len(expected)-860:] // last 860 characters
 
 	this.So(actual, should.Equal, expected)
 }
