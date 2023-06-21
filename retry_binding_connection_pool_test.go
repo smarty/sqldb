@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/smartystreets/assertions/should"
-	"github.com/smartystreets/gunit"
+	"github.com/smarty/assertions/should"
+	"github.com/smarty/gunit"
 )
 
 func TestRetryBindingConnectionPoolFixture(t *testing.T) {
