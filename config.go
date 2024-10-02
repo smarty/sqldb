@@ -26,6 +26,7 @@ func NewBindingPool(handle *sql.DB, options ...option) BindingConnectionPool {
 }
 func newPool(handle *sql.DB, config configuration) ConnectionPool {
 	var pool ConnectionPool = NewLibraryConnectionPoolAdapter(handle, config.txOptions)
+	pool = NewNormalizeContextCancellationConnectionPool(pool)
 
 	if config.splitStatement {
 		pool = NewSplitStatementConnectionPool(pool, config.parameterPrefix)
