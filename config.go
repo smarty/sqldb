@@ -6,12 +6,13 @@ import (
 )
 
 type configuration struct {
-	txOptions         *sql.TxOptions
-	splitStatement    bool
-	panicOnBindError  bool
-	stackTraceOnError bool
-	parameterPrefix   string
-	retrySleep        time.Duration
+	txOptions                    *sql.TxOptions
+	splitStatement               bool
+	panicOnBindError             bool
+	normalizeContextCancellation bool
+	stackTraceOnError            bool
+	parameterPrefix              string
+	retrySleep                   time.Duration
 }
 
 func NewPool(handle *sql.DB, options ...option) ConnectionPool {
@@ -29,6 +30,10 @@ func newPool(handle *sql.DB, config configuration) ConnectionPool {
 
 	if config.splitStatement {
 		pool = NewSplitStatementConnectionPool(pool, config.parameterPrefix)
+	}
+
+	if config.normalizeContextCancellation {
+		pool = NewNormalizeContextCancellationConnectionPool(pool)
 	}
 
 	if config.stackTraceOnError {
@@ -59,6 +64,9 @@ func (singleton) TxOptions(value *sql.TxOptions) option {
 func (singleton) PanicOnBindError(value bool) option {
 	return func(this *configuration) { this.panicOnBindError = value }
 }
+func (singleton) NormalizeContextCancellation(value bool) option {
+	return func(this *configuration) { this.normalizeContextCancellation = value }
+}
 func (singleton) MySQL() option {
 	return func(this *configuration) { this.splitStatement = true; this.parameterPrefix = "?" }
 }
@@ -86,6 +94,7 @@ func (singleton) defaults(options ...option) []option {
 	var defaultTxOptions = &sql.TxOptions{Isolation: sql.LevelReadCommitted}
 	const defaultStackTraceErrDiagnostics = true
 	const defaultPanicOnBindError = true
+	const defaultNormalizeContextCancellation = true
 	const defaultSplitStatement = true
 	const defaultParameterPrefix = "?"
 	const defaultRetrySleep = 0
@@ -93,6 +102,7 @@ func (singleton) defaults(options ...option) []option {
 	return append([]option{
 		Options.TxOptions(defaultTxOptions),
 		Options.PanicOnBindError(defaultPanicOnBindError),
+		Options.NormalizeContextCancellation(defaultNormalizeContextCancellation),
 		Options.StackTraceErrDiagnostics(defaultStackTraceErrDiagnostics),
 		Options.ParameterPrefix(defaultParameterPrefix),
 		Options.SplitStatement(defaultSplitStatement),
