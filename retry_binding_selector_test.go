@@ -35,7 +35,7 @@ func (this *RetryBindingSelectorFixture) TestSelectWithoutErrors() {
 	this.So(err, should.Equal, err)
 	this.So(this.inner.count, should.Equal, 1)
 	this.So(this.inner.statement, should.Equal, "statement")
-	this.So(this.inner.parameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.parameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *RetryBindingSelectorFixture) TestRetryUntilSuccess() {
@@ -56,7 +56,7 @@ type FakeRetrySelector struct {
 	errorCount int
 	binder     Binder
 	statement  string
-	parameters []interface{}
+	parameters []any
 }
 
 func (this *FakeRetrySelector) Ping(_ context.Context) error {
@@ -71,7 +71,7 @@ func (this *FakeRetrySelector) Close() error {
 	panic("Should not be called.")
 }
 
-func (this *FakeRetrySelector) BindSelect(_ context.Context, binder Binder, statement string, parameters ...interface{}) error {
+func (this *FakeRetrySelector) BindSelect(_ context.Context, binder Binder, statement string, parameters ...any) error {
 	if this.binder == nil {
 		this.binder = binder
 	} else {
@@ -98,6 +98,6 @@ func (this *FakeRetrySelector) BindSelect(_ context.Context, binder Binder, stat
 	}
 }
 
-func (this *FakeRetrySelector) Execute(_ context.Context, _ string, _ ...interface{}) (uint64, error) {
+func (this *FakeRetrySelector) Execute(_ context.Context, _ string, _ ...any) (uint64, error) {
 	panic("Should not be called.")
 }

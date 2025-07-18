@@ -54,7 +54,7 @@ func (this *StackTraceTransactionFixture) TestExecute() {
 	this.So(err.Error(), should.Equal, "ERROR\nStack Trace:\nSTACK")
 	this.So(this.inner.executeCalls, should.Equal, 1)
 	this.So(this.inner.executeStatement, should.Equal, "STATEMENT")
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.executeParameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *StackTraceTransactionFixture) TestSelect() {
@@ -68,5 +68,5 @@ func (this *StackTraceTransactionFixture) TestSelect() {
 	this.So(err.Error(), should.Equal, "ERROR\nStack Trace:\nSTACK")
 	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "STATEMENT")
-	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.selectParameters, should.Resemble, []any{1, 2, 3})
 }

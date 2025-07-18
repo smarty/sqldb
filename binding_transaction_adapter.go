@@ -14,6 +14,6 @@ func NewBindingTransactionAdapter(actual Transaction, panicOnBindError bool) *Bi
 	}
 }
 
-func (this *BindingTransactionAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingTransactionAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...any) error {
 	return this.selector.BindSelect(ctx, binder, statement, parameters...)
 }

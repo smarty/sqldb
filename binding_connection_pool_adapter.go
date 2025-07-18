@@ -32,10 +32,10 @@ func (this *BindingConnectionPoolAdapter) Close() error {
 	return this.inner.Close()
 }
 
-func (this *BindingConnectionPoolAdapter) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
+func (this *BindingConnectionPoolAdapter) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	return this.inner.Execute(ctx, statement, parameters...)
 }
 
-func (this *BindingConnectionPoolAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingConnectionPoolAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...any) error {
 	return this.selector.BindSelect(ctx, binder, statement, parameters...)
 }

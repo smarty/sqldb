@@ -26,7 +26,7 @@ func (this *LibraryConnectionPoolAdapter) BeginTransaction(ctx context.Context) 
 	}
 }
 
-func (this *LibraryConnectionPoolAdapter) Execute(ctx context.Context, query string, parameters ...interface{}) (uint64, error) {
+func (this *LibraryConnectionPoolAdapter) Execute(ctx context.Context, query string, parameters ...any) (uint64, error) {
 	if result, err := this.DB.ExecContext(ctx, query, parameters...); err != nil {
 		return 0, err
 	} else {
@@ -35,6 +35,6 @@ func (this *LibraryConnectionPoolAdapter) Execute(ctx context.Context, query str
 	}
 }
 
-func (this *LibraryConnectionPoolAdapter) Select(ctx context.Context, query string, parameters ...interface{}) (SelectResult, error) {
+func (this *LibraryConnectionPoolAdapter) Select(ctx context.Context, query string, parameters ...any) (SelectResult, error) {
 	return this.DB.QueryContext(ctx, query, parameters...)
 }

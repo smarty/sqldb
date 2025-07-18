@@ -24,6 +24,6 @@ func (this *SplitStatementConnectionPool) BeginTransaction(ctx context.Context) 
 	}
 }
 
-func (this *SplitStatementConnectionPool) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
+func (this *SplitStatementConnectionPool) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	return this.executor.Execute(ctx, statement, parameters...)
 }

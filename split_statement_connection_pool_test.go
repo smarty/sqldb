@@ -74,7 +74,7 @@ func (this *SplitStatementConnectionPoolFixture) TestExecute() {
 	this.So(affected, should.Equal, 10)
 	this.So(err, should.BeNil)
 	this.So(this.inner.executeCalls, should.Equal, 2)
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{2, 3}) // last two parameters
+	this.So(this.inner.executeParameters, should.Resemble, []any{2, 3}) // last two parameters
 }
 
 func (this *SplitStatementConnectionPoolFixture) TestSelect() {
@@ -87,5 +87,5 @@ func (this *SplitStatementConnectionPoolFixture) TestSelect() {
 	this.So(err, should.Equal, this.inner.selectError)
 	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "query")
-	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.selectParameters, should.Resemble, []any{1, 2, 3})
 }

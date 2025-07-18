@@ -37,7 +37,7 @@ func (this *BindingSelectorAdapterFixture) TestFailedSelectReturnsError() {
 	this.So(err, should.Equal, this.fakeInnerSelector.selectError)
 	this.So(this.fakeInnerSelector.selects, should.Equal, 1)
 	this.So(this.fakeInnerSelector.statement, should.Equal, "query")
-	this.So(this.fakeInnerSelector.parameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.fakeInnerSelector.parameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *BindingSelectorAdapterFixture) TestEmptyResult() {
@@ -93,12 +93,12 @@ func (this *BindingSelectorAdapterFixture) TestScanErrorClosesAndPanicsWhenConfi
 type FakeSelector struct {
 	selects      int
 	statement    string
-	parameters   []interface{}
+	parameters   []any
 	selectResult *FakeSelectResult
 	selectError  error
 }
 
-func (this *FakeSelector) Select(_ context.Context, statement string, parameters ...interface{}) (SelectResult, error) {
+func (this *FakeSelector) Select(_ context.Context, statement string, parameters ...any) (SelectResult, error) {
 	this.selects++
 	this.statement = statement
 	this.parameters = parameters

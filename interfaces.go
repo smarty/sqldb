@@ -19,11 +19,11 @@ type (
 	}
 
 	Executor interface {
-		Execute(context.Context, string, ...interface{}) (uint64, error)
+		Execute(context.Context, string, ...any) (uint64, error)
 	}
 
 	Selector interface {
-		Select(context.Context, string, ...interface{}) (SelectResult, error)
+		Select(context.Context, string, ...any) (SelectResult, error)
 	}
 
 	SelectExecutor interface {
@@ -39,7 +39,7 @@ type (
 	}
 
 	Scanner interface {
-		Scan(...interface{}) error
+		Scan(...any) error
 	}
 )
 
@@ -60,7 +60,7 @@ type (
 	}
 
 	BindingSelector interface {
-		BindSelect(context.Context, Binder, string, ...interface{}) error
+		BindSelect(context.Context, Binder, string, ...any) error
 	}
 
 	Binder func(Scanner) error

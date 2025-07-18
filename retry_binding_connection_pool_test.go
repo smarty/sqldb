@@ -65,7 +65,7 @@ func (this *RetryBindingConnectionPoolFixture) TestExecute() {
 	this.So(affected, should.Equal, 42)
 	this.So(err, should.Equal, this.inner.executeError)
 	this.So(this.inner.executeCalls, should.Equal, 1)
-	this.So(this.inner.executeParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.executeParameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *RetryBindingConnectionPoolFixture) TestBindSelect() {
@@ -79,5 +79,5 @@ func (this *RetryBindingConnectionPoolFixture) TestBindSelect() {
 	this.So(this.inner.selectBinder, should.NotBeNil)
 	this.So(this.inner.selectCalls, should.Equal, 1)
 	this.So(this.inner.selectStatement, should.Equal, "query")
-	this.So(this.inner.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.inner.selectParameters, should.Resemble, []any{1, 2, 3})
 }

@@ -27,12 +27,12 @@ func (this *StackTraceConnectionPool) Close() error {
 	return this.Wrap(this.inner.Close())
 }
 
-func (this *StackTraceConnectionPool) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
+func (this *StackTraceConnectionPool) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	affected, err := this.inner.Execute(ctx, statement, parameters...)
 	return affected, this.Wrap(err)
 }
 
-func (this *StackTraceConnectionPool) Select(ctx context.Context, query string, parameters ...interface{}) (SelectResult, error) {
+func (this *StackTraceConnectionPool) Select(ctx context.Context, query string, parameters ...any) (SelectResult, error) {
 	result, err := this.inner.Select(ctx, query, parameters...)
 	return result, this.Wrap(err)
 }

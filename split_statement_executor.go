@@ -16,7 +16,7 @@ func NewSplitStatementExecutor(actual Executor, delimiter string) *SplitStatemen
 	return &SplitStatementExecutor{Executor: actual, delimiter: delimiter}
 }
 
-func (this *SplitStatementExecutor) Execute(ctx context.Context, statement string, parameters ...interface{}) (uint64, error) {
+func (this *SplitStatementExecutor) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	if argumentCount := strings.Count(statement, this.delimiter); argumentCount != len(parameters) {
 		return 0, fmt.Errorf("%w: Expected: %d, received %d", ErrArgumentCountMismatch, argumentCount, len(parameters))
 	}

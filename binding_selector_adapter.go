@@ -11,7 +11,7 @@ func NewBindingSelectorAdapter(selector Selector, panicOnBindError bool) *Bindin
 	return &BindingSelectorAdapter{selector: selector, panicOnBindError: panicOnBindError}
 }
 
-func (this *BindingSelectorAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+func (this *BindingSelectorAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...any) error {
 	result, err := this.selector.Select(ctx, statement, parameters...)
 	if err != nil {
 		return err

@@ -44,7 +44,7 @@ func (this *SplitStatementExecutorFixture) TestSingleStatement() {
 	this.So(affected, should.Equal, this.fakeInner.affected)
 	this.So(err, should.BeNil)
 	this.So(this.fakeInner.statements, should.Resemble, []string{"statement ? ?;"})
-	this.So(this.fakeInner.parameters, should.Resemble, [][]interface{}{{1, 2}})
+	this.So(this.fakeInner.parameters, should.Resemble, [][]any{{1, 2}})
 }
 
 func (this *SplitStatementExecutorFixture) TestEmptyStatementsAreSkipped() {
@@ -68,7 +68,7 @@ func (this *SplitStatementExecutorFixture) TestMultipleStatements() {
 		"2 ? ?;",
 		"3 ? ? ?;",
 	})
-	this.So(this.fakeInner.parameters, should.Resemble, [][]interface{}{
+	this.So(this.fakeInner.parameters, should.Resemble, [][]any{
 		{1},
 		{2, 3},
 		{4, 5, 6},

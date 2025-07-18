@@ -14,7 +14,7 @@ func NewRetryBindingSelector(actual BindingConnectionPool, duration time.Duratio
 	return &RetryBindingSelector{BindingSelector: actual, duration: duration}
 }
 
-func (this *RetryBindingSelector) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...interface{}) error {
+func (this *RetryBindingSelector) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...any) error {
 	for {
 		if this.BindingSelector.BindSelect(ctx, binder, statement, parameters...) == nil {
 			return nil

@@ -93,7 +93,7 @@ func (this *StackTraceConnectionPoolFixture) TestExecute_WhenSuccessful_NoStackT
 	this.So(err, should.BeNil)
 	this.So(this.pool.executeCalls, should.Equal, 1)
 	this.So(this.pool.executeStatement, should.Equal, "QUERY")
-	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.pool.executeParameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *StackTraceConnectionPoolFixture) TestExecute_WhenFails_StackTraceAppendedToErr() {
@@ -107,7 +107,7 @@ func (this *StackTraceConnectionPoolFixture) TestExecute_WhenFails_StackTraceApp
 	this.So(err.Error(), should.Equal, "EXECUTE ERROR\nStack Trace:\nHELLO, WORLD!")
 	this.So(this.pool.executeCalls, should.Equal, 1)
 	this.So(this.pool.executeStatement, should.Equal, "QUERY")
-	this.So(this.pool.executeParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.pool.executeParameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *StackTraceConnectionPoolFixture) TestSelect_WhenSuccessful_NoStackTraceIncluded() {
@@ -120,7 +120,7 @@ func (this *StackTraceConnectionPoolFixture) TestSelect_WhenSuccessful_NoStackTr
 	this.So(err, should.BeNil)
 	this.So(this.pool.selectCalls, should.Equal, 1)
 	this.So(this.pool.selectStatement, should.Equal, "QUERY")
-	this.So(this.pool.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.pool.selectParameters, should.Resemble, []any{1, 2, 3})
 }
 
 func (this *StackTraceConnectionPoolFixture) TestSelect_WhenFails_StackTraceAppendedToErr() {
@@ -135,5 +135,5 @@ func (this *StackTraceConnectionPoolFixture) TestSelect_WhenFails_StackTraceAppe
 	this.So(err.Error(), should.Equal, "SELECT ERROR\nStack Trace:\nHELLO, WORLD!")
 	this.So(this.pool.selectCalls, should.Equal, 1)
 	this.So(this.pool.selectStatement, should.Equal, "QUERY")
-	this.So(this.pool.selectParameters, should.Resemble, []interface{}{1, 2, 3})
+	this.So(this.pool.selectParameters, should.Resemble, []any{1, 2, 3})
 }
