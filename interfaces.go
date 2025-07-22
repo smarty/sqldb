@@ -1,6 +1,9 @@
 package sqldb
 
-import "context"
+import (
+	"context"
+	"database/sql"
+)
 
 type (
 	ConnectionPool interface {
@@ -20,6 +23,7 @@ type (
 
 	Executor interface {
 		Execute(context.Context, string, ...any) (uint64, error)
+		ExecuteStatement(context.Context, string, string, ...any) (sql.Result, error)
 	}
 
 	Selector interface {
