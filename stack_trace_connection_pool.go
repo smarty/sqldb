@@ -32,6 +32,11 @@ func (this *StackTraceConnectionPool) Execute(ctx context.Context, statement str
 	return affected, this.Wrap(err)
 }
 
+func (this *StackTraceConnectionPool) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	affected, err := this.inner.ExecuteStatement(ctx, id, statement, parameters...)
+	return affected, this.Wrap(err)
+}
+
 func (this *StackTraceConnectionPool) Select(ctx context.Context, query string, parameters ...any) (SelectResult, error) {
 	result, err := this.inner.Select(ctx, query, parameters...)
 	return result, this.Wrap(err)

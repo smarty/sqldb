@@ -101,3 +101,7 @@ func (this *FakeRetrySelector) BindSelect(_ context.Context, binder Binder, stat
 func (this *FakeRetrySelector) Execute(_ context.Context, _ string, _ ...any) (uint64, error) {
 	panic("Should not be called.")
 }
+
+func (this *FakeRetrySelector) ExecuteStatement(_ context.Context, _, _ string, _ ...any) (uint64, error) {
+	panic("Should not be called.")
+}

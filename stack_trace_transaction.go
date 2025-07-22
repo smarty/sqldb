@@ -24,6 +24,11 @@ func (this *StackTraceTransaction) Execute(ctx context.Context, statement string
 	return affected, this.Wrap(err)
 }
 
+func (this *StackTraceTransaction) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	affected, err := this.inner.ExecuteStatement(ctx, id, statement, parameters...)
+	return affected, this.Wrap(err)
+}
+
 func (this *StackTraceTransaction) Select(ctx context.Context, statement string, args ...any) (SelectResult, error) {
 	result, err := this.inner.Select(ctx, statement, args...)
 	return result, this.Wrap(err)

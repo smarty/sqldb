@@ -2,7 +2,6 @@ package sqldb
 
 import (
 	"context"
-	"database/sql"
 )
 
 type (
@@ -23,7 +22,7 @@ type (
 
 	Executor interface {
 		Execute(context.Context, string, ...any) (uint64, error)
-		ExecuteStatement(context.Context, string, string, ...any) (sql.Result, error)
+		ExecuteStatement(context.Context, string, string, ...any) (uint64, error)
 	}
 
 	Selector interface {

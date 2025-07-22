@@ -53,6 +53,13 @@ func (this *FakeConnectionPool) Execute(_ context.Context, statement string, par
 	return this.executeResult, this.executeError
 }
 
+func (this *FakeConnectionPool) ExecuteStatement(_ context.Context, id, statement string, parameters ...any) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
 func (this *FakeConnectionPool) Select(_ context.Context, statement string, parameters ...any) (SelectResult, error) {
 	this.selectCalls++
 	this.selectStatement = statement
@@ -93,6 +100,13 @@ func (this *FakeTransaction) Rollback() error {
 }
 
 func (this *FakeTransaction) Execute(_ context.Context, statement string, parameters ...any) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
+func (this *FakeTransaction) ExecuteStatement(_ context.Context, id, statement string, parameters ...any) (uint64, error) {
 	this.executeCalls++
 	this.executeStatement = statement
 	this.executeParameters = parameters
@@ -160,6 +174,17 @@ func (this *FakeExecutor) Execute(_ context.Context, statement string, parameter
 	return this.affected, nil
 }
 
+func (this *FakeExecutor) ExecuteStatement(_ context.Context, id, statement string, parameters ...any) (uint64, error) {
+	this.statements = append(this.statements, strings.TrimSpace(statement))
+	this.parameters = append(this.parameters, parameters)
+
+	if len(this.statements) <= len(this.errorsToReturn) {
+		return this.affected, this.errorsToReturn[len(this.statements)-1]
+	}
+
+	return this.affected, nil
+}
+
 ///////////////////////////////////////////////////////////////
 
 type FakeBindingConnectionPool struct {
@@ -209,6 +234,13 @@ func (this *FakeBindingConnectionPool) Execute(_ context.Context, statement stri
 	return this.executeResult, this.executeError
 }
 
+func (this *FakeBindingConnectionPool) ExecuteStatement(_ context.Context, id, statement string, parameters ...any) (uint64, error) {
+	this.executeCalls++
+	this.executeStatement = statement
+	this.executeParameters = parameters
+	return this.executeResult, this.executeError
+}
+
 func (this *FakeBindingConnectionPool) BindSelect(_ context.Context, binder Binder, statement string, parameters ...any) error {
 	this.selectCalls++
 	this.selectBinder = binder
@@ -231,6 +263,10 @@ func (this *FakeBindingTransaction) Rollback() error {
 }
 
 func (this *FakeBindingTransaction) Execute(_ context.Context, _ string, _ ...any) (uint64, error) {
+	panic("Not called")
+}
+
+func (this *FakeBindingTransaction) ExecuteStatement(_ context.Context, _, _ string, _ ...any) (uint64, error) {
 	panic("Not called")
 }
 

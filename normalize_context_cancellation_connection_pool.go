@@ -30,6 +30,11 @@ func (this *NormalizeContextCancellationConnectionPool) Close() error {
 	return this.normalizeContextCancellationError(this.inner.Close())
 }
 
+func (this *NormalizeContextCancellationConnectionPool) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	affected, err := this.inner.ExecuteStatement(ctx, id, statement, parameters...)
+	return affected, this.normalizeContextCancellationError(err)
+}
+
 func (this *NormalizeContextCancellationConnectionPool) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	affected, err := this.inner.Execute(ctx, statement, parameters...)
 	return affected, this.normalizeContextCancellationError(err)
@@ -39,6 +44,10 @@ func (this *NormalizeContextCancellationConnectionPool) Select(ctx context.Conte
 	result, err := this.inner.Select(ctx, query, parameters...)
 	return result, this.normalizeContextCancellationError(err)
 }
+
+//func (this *NormalizeContextCancellationConnectionPool) CloseStatement(id uint64) {
+//	return this.inner.CloseStatement(id)
+//}
 
 // TODO remove manual check of "use of closed network connection" with release of https://github.com/go-sql-driver/mysql/pull/1615
 func (this *NormalizeContextCancellationConnectionPool) normalizeContextCancellationError(err error) error {

@@ -36,6 +36,14 @@ func (this *BindingConnectionPoolAdapter) Execute(ctx context.Context, statement
 	return this.inner.Execute(ctx, statement, parameters...)
 }
 
+func (this *BindingConnectionPoolAdapter) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	return this.inner.ExecuteStatement(ctx, id, statement, parameters...)
+}
+
 func (this *BindingConnectionPoolAdapter) BindSelect(ctx context.Context, binder Binder, statement string, parameters ...any) error {
 	return this.selector.BindSelect(ctx, binder, statement, parameters...)
 }
+
+//func (this *BindingConnectionPoolAdapter) CloseStatement(id uint64) {
+//
+//}
