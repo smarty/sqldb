@@ -11,7 +11,10 @@ type LibraryTransactionAdapter struct {
 }
 
 func NewLibraryTransactionAdapter(actual *sql.Tx) *LibraryTransactionAdapter {
-	return &LibraryTransactionAdapter{Tx: actual}
+	return &LibraryTransactionAdapter{
+		Tx:         actual,
+		statements: make(map[string]*sql.Stmt),
+	}
 }
 
 func (this *LibraryTransactionAdapter) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {

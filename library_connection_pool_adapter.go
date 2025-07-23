@@ -12,7 +12,11 @@ type LibraryConnectionPoolAdapter struct {
 }
 
 func NewLibraryConnectionPoolAdapter(actual *sql.DB, txOptions *sql.TxOptions) *LibraryConnectionPoolAdapter {
-	return &LibraryConnectionPoolAdapter{DB: actual, txOptions: txOptions}
+	return &LibraryConnectionPoolAdapter{
+		DB:         actual,
+		txOptions:  txOptions,
+		statements: make(map[string]*sql.Stmt),
+	}
 }
 
 func (this *LibraryConnectionPoolAdapter) Ping(ctx context.Context) error {

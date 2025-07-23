@@ -17,3 +17,7 @@ func NewSplitStatementTransaction(inner Transaction, delimiter string) *SplitSta
 func (this *SplitStatementTransaction) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	return this.executor.Execute(ctx, statement, parameters...)
 }
+
+func (this *SplitStatementTransaction) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	return this.executor.ExecuteStatement(ctx, id, statement, parameters...)
+}

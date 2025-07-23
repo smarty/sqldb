@@ -27,3 +27,7 @@ func (this *SplitStatementConnectionPool) BeginTransaction(ctx context.Context) 
 func (this *SplitStatementConnectionPool) Execute(ctx context.Context, statement string, parameters ...any) (uint64, error) {
 	return this.executor.Execute(ctx, statement, parameters...)
 }
+
+func (this *SplitStatementConnectionPool) ExecuteStatement(ctx context.Context, id, statement string, parameters ...any) (uint64, error) {
+	return this.executor.ExecuteStatement(ctx, id, statement, parameters...)
+}
