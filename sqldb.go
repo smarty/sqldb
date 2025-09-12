@@ -51,7 +51,7 @@ func ExecuteStatements(ctx context.Context, db DBTx, statements string, args ...
 	}
 	var count uint64
 	index := 0
-	for _, statement := range strings.Split(statements, ";") {
+	for statement := range strings.SplitSeq(statements, ";") {
 		if len(strings.TrimSpace(statement)) == 0 {
 			continue
 		}
