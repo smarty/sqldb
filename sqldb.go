@@ -44,12 +44,11 @@ func BindAll(rows *sql.Rows, err error, binder Binder) error {
 
 // ExecuteStatements receives a *sql.DB or *sql.Tx as well as one or more SQL statements (separated by ';')
 // and executes each one with the arguments corresponding to that statement.
-func ExecuteStatements(ctx context.Context, db DBTx, statements string, args ...any) (uint64, error) {
+func ExecuteStatements(ctx context.Context, db DBTx, statements string, args ...any) (count uint64, err error) {
 	placeholderCount := strings.Count(statements, "?")
 	if placeholderCount != len(args) {
 		return 0, fmt.Errorf("%w: Expected: %d, received %d", ErrArgumentCountMismatch, placeholderCount, len(args))
 	}
-	var count uint64
 	index := 0
 	for statement := range strings.SplitSeq(statements, ";") {
 		if len(strings.TrimSpace(statement)) == 0 {
