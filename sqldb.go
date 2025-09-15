@@ -30,16 +30,16 @@ type DBTx interface {
 // for each record, which gives the caller the opportunity to scan and aggregate values.
 func BindAll(rows *sql.Rows, err error, binder Binder) error {
 	if err != nil {
-		return normalize(err)
+		return NormalizeErr(err)
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		err = binder(rows)
 		if err != nil {
-			return normalize(err)
+			return NormalizeErr(err)
 		}
 	}
-	return normalize(rows.Err())
+	return NormalizeErr(rows.Err())
 }
 
 // ExecuteStatements receives a *sql.DB or *sql.Tx as well as one or more SQL statements (separated by ';')
@@ -71,15 +71,15 @@ func ExecuteStatements(ctx context.Context, db DBTx, statements string, args ...
 // by external callers when dealing with the result of a prepared statement.
 func RowsAffected(result sql.Result, err error) (uint64, error) {
 	if err != nil {
-		return 0, normalize(err)
+		return 0, NormalizeErr(err)
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return 0, normalize(err)
+		return 0, NormalizeErr(err)
 	}
 	return uint64(rows), nil
 }
-func normalize(err error) error {
+func NormalizeErr(err error) error {
 	if err == nil {
 		return nil
 	}
