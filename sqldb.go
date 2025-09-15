@@ -39,7 +39,7 @@ func BindAll(rows *sql.Rows, err error, binder Binder) error {
 			return normalize(err)
 		}
 	}
-	return nil
+	return normalize(rows.Err())
 }
 
 // ExecuteStatements receives a *sql.DB or *sql.Tx as well as one or more SQL statements (separated by ';')
