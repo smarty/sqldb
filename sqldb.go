@@ -79,6 +79,10 @@ func RowsAffected(result sql.Result, err error) (uint64, error) {
 	}
 	return uint64(rows), nil
 }
+
+// NormalizeErr attaches a stack trace to non-nil errors and also normalizes errors that are
+// semantically equal to context.Canceled. At present we are unaware whether this is still a
+// commonly encountered scenario.
 func NormalizeErr(err error) error {
 	if err == nil {
 		return nil
