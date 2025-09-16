@@ -25,6 +25,16 @@ type DBTx interface {
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
+// BindOptionalRow receipts the *sql.Row, calls the binder (which probably calls
+// the row.Scan() method), and masks the result of sql.ErrNoRows.
+func BindOptionalRow(row *sql.Row, binder Binder) error {
+	err := binder(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	return NormalizeErr(err)
+}
+
 // BindAll receives the *sql.Rows + error from the QueryContext method of either
 // a *sql.DB, a *sql.Tx, or a *sql.Stmt, as well as a binder callback, to be called
 // for each record, which gives the caller the opportunity to scan and aggregate values.
