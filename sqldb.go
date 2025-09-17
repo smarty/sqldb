@@ -24,7 +24,7 @@ func ScanOptionalRow(row *sql.Row, args ...any) error {
 // for each record, which gives the caller the opportunity to scan and aggregate values.
 func BindAll(rows *sql.Rows, err error, scanner func(Scanner) error) error {
 	if err != nil {
-		return NormalizeErr(err)
+		return err
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
@@ -33,7 +33,7 @@ func BindAll(rows *sql.Rows, err error, scanner func(Scanner) error) error {
 			return NormalizeErr(err)
 		}
 	}
-	return NormalizeErr(rows.Err())
+	return nil
 }
 
 // ExecuteScript receives a Handle as well as one or more SQL statements (each ending in ';')
