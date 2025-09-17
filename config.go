@@ -1,7 +1,7 @@
 package sqldb
 
 type configuration struct {
-	logger    Logger
+	logger    logger
 	threshold int
 }
 type option func(*configuration)
@@ -24,7 +24,7 @@ func (singleton) defaults(options ...option) []option {
 	}, options...)
 }
 
-func (singleton) Logger(logger Logger) option {
+func (singleton) Logger(logger logger) option {
 	return func(this *configuration) { this.logger = logger }
 }
 

@@ -5,22 +5,24 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"iter"
+	"runtime/debug"
 	"strings"
 )
 
-type db struct {
-	handle    Handle
-	logger    Logger
+type defaultHandle struct {
+	pool      Pool
+	logger    logger
 	threshold int
 	counts    map[string]int
 	prepared  map[string]*sql.Stmt
 }
 
-func New(handle Handle, options ...option) DB {
+func New(handle Pool, options ...option) Handle {
 	var config configuration
 	Options.apply(options...)(&config)
-	return &db{
-		handle:    handle,
+	return &defaultHandle{
+		pool:      handle,
 		logger:    config.logger,
 		threshold: config.threshold,
 		counts:    make(map[string]int),
@@ -28,7 +30,7 @@ func New(handle Handle, options ...option) DB {
 	}
 }
 
-func (this *db) prepare(ctx context.Context, rawStatement string) (*sql.Stmt, error) {
+func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*sql.Stmt, error) {
 	if this.threshold < 0 {
 		return nil, nil
 	}
@@ -40,7 +42,7 @@ func (this *db) prepare(ctx context.Context, rawStatement string) (*sql.Stmt, er
 	if ok {
 		return statement, nil
 	}
-	statement, err := this.handle.PrepareContext(ctx, rawStatement)
+	statement, err := this.pool.PrepareContext(ctx, rawStatement)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +50,8 @@ func (this *db) prepare(ctx context.Context, rawStatement string) (*sql.Stmt, er
 	return statement, nil
 }
 
-func (this *db) Execute(ctx context.Context, script Script) (err error) {
-	defer func() { err = NormalizeErr(err) }()
+func (this *defaultHandle) Execute(ctx context.Context, script Script) (err error) {
+	defer func() { err = normalizeErr(err) }()
 	statements := script.Statements()
 	parameters := script.Parameters()
 	placeholderCount := strings.Count(statements, "?")
@@ -64,7 +66,7 @@ func (this *db) Execute(ctx context.Context, script Script) (err error) {
 		if prepared != nil {
 			_, err = prepared.ExecContext(ctx, params...)
 		} else {
-			_, err = this.handle.ExecContext(ctx, statement, params...)
+			_, err = this.pool.ExecContext(ctx, statement, params...)
 		}
 		if err != nil {
 			return err
@@ -72,28 +74,8 @@ func (this *db) Execute(ctx context.Context, script Script) (err error) {
 	}
 	return nil
 }
-func (this *db) QueryRow(ctx context.Context, query Query) (err error) {
-	defer func() { err = NormalizeErr(err) }()
-	statement := query.Statement()
-	prepared, err := this.prepare(ctx, statement)
-	if err != nil {
-		return err
-	}
-	parameters := query.Parameters()
-	var row *sql.Row
-	if prepared != nil {
-		row = prepared.QueryRowContext(ctx, parameters...)
-	} else {
-		row = this.handle.QueryRowContext(ctx, statement, parameters...)
-	}
-	err = query.Scan(row)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil
-	}
-	return err
-}
-func (this *db) Query(ctx context.Context, query Query) (err error) {
-	defer func() { err = NormalizeErr(err) }()
+func (this *defaultHandle) Populate(ctx context.Context, query Query) (err error) {
+	defer func() { err = normalizeErr(err) }()
 	statement := query.Statement()
 	prepared, err := this.prepare(ctx, statement)
 	if err != nil {
@@ -104,7 +86,7 @@ func (this *db) Query(ctx context.Context, query Query) (err error) {
 	if prepared != nil {
 		rows, err = prepared.QueryContext(ctx, parameters...)
 	} else {
-		rows, err = this.handle.QueryContext(ctx, statement, parameters...)
+		rows, err = this.pool.QueryContext(ctx, statement, parameters...)
 	}
 	if err != nil {
 		return err
@@ -117,4 +99,56 @@ func (this *db) Query(ctx context.Context, query Query) (err error) {
 		}
 	}
 	return rows.Err()
+}
+func (this *defaultHandle) PopulateRow(ctx context.Context, query Query) (err error) {
+	defer func() { err = normalizeErr(err) }()
+	statement := query.Statement()
+	prepared, err := this.prepare(ctx, statement)
+	if err != nil {
+		return err
+	}
+	parameters := query.Parameters()
+	var row *sql.Row
+	if prepared != nil {
+		row = prepared.QueryRowContext(ctx, parameters...)
+	} else {
+		row = this.pool.QueryRowContext(ctx, statement, parameters...)
+	}
+	err = query.Scan(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	return err
+}
+
+// interleaveParameters splits the statements (on ';') and pairs each one with its corresponding parameters.
+func interleaveParameters(statements string, parameters ...any) iter.Seq2[string, []any] {
+	return func(yield func(string, []any) bool) {
+		index := 0
+		for statement := range strings.SplitSeq(statements, ";") {
+			if len(strings.TrimSpace(statement)) == 0 {
+				continue
+			}
+			statement += ";" // terminate the statement
+			indexOffset := strings.Count(statement, "?")
+			params := parameters[index : index+indexOffset]
+			index += indexOffset
+			if !yield(statement, params) {
+				return
+			}
+		}
+	}
+}
+
+// normalizeErr attaches a stack trace to non-nil errors and also normalizes errors that are
+// semantically equal to context.Canceled. At present we are unaware whether this is still a
+// commonly encountered scenario.
+func normalizeErr(err error) error {
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "operation was canceled") {
+		return fmt.Errorf("%w: %w", context.Canceled, err)
+	}
+	return fmt.Errorf("%w\nStack Trace:\n%s", err, string(debug.Stack()))
 }

@@ -9,24 +9,25 @@ import (
 var ErrParameterCountMismatch = errors.New("the number of parameters supplied does not match the statement")
 
 type (
-	Logger interface {
+	logger interface {
 		Printf(string, ...any)
 	}
 
-	// Handle is a common subset of methods implemented by *sql.DB and *sql.Tx
-	Handle interface {
+	// Pool is a common subset of methods implemented by *sql.DB and *sql.Tx.
+	// The name is a nod to that fact that a *sql.DB implements a Pool of connections.
+	Pool interface {
 		PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
 		ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 		QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 		QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 	}
 
-	// DB is a high level approach to common database operations, where each operation implements either
+	// Handle is a high level approach to common database operations, where each operation implements either
 	// the Query or Script interface.
-	DB interface {
+	Handle interface {
 		Execute(ctx context.Context, script Script) error
-		QueryRow(ctx context.Context, query Query) error
-		Query(ctx context.Context, query Query) error
+		Populate(ctx context.Context, query Query) error
+		PopulateRow(ctx context.Context, query Query) error
 	}
 
 	// Script represents SQL statements that aren't expected to provide rows as a result.

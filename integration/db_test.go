@@ -9,6 +9,8 @@ import (
 	"github.com/smarty/gunit/v2/better"
 	"github.com/smarty/gunit/v2/should"
 	"github.com/smarty/sqldb/v3"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestFixture(t *testing.T) {
@@ -19,7 +21,7 @@ type Fixture struct {
 	*gunit.Fixture
 	db *sql.DB
 	tx *sql.Tx
-	DB sqldb.DB
+	DB sqldb.Handle
 }
 
 func (this *Fixture) Setup() {
@@ -45,7 +47,7 @@ func (this *Fixture) Teardown() {
 func (this *Fixture) TestQuery() {
 	for range 10 { // should transition to prepared statements
 		query := &SelectAll{Result: make(map[int]string)}
-		err := this.DB.Query(this.Context(), query)
+		err := this.DB.Populate(this.Context(), query)
 		this.So(err, better.BeNil)
 		this.So(query.Result, should.Equal, map[int]string{
 			1: "a",
@@ -57,13 +59,13 @@ func (this *Fixture) TestQuery() {
 }
 func (this *Fixture) TestQueryRow() {
 	query := &SelectRow{id: 1}
-	err := this.DB.QueryRow(this.Context(), query)
+	err := this.DB.PopulateRow(this.Context(), query)
 	this.So(err, better.BeNil)
 	this.So(query.value, should.Equal, "a")
 }
 func (this *Fixture) TestQueryQueryRow_NoResult() {
 	query := &SelectRow{id: 5}
-	err := this.DB.QueryRow(this.Context(), query)
+	err := this.DB.PopulateRow(this.Context(), query)
 	this.So(err, better.BeNil)
 	this.So(query.value, should.BeEmpty)
 }
@@ -73,7 +75,18 @@ func (this *Fixture) TestQueryQueryRow_NoResult() {
 type DDL struct{}
 
 func (this *DDL) Statements() string {
-	return CreateInsert
+	return `
+		DROP TABLE IF EXISTS sqldb_integration_test;
+		
+		CREATE TABLE sqldb_integration_test (
+			id   INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT    NOT NULL
+		);
+		
+		INSERT INTO sqldb_integration_test (name) VALUES (?);
+		INSERT INTO sqldb_integration_test (name) VALUES (?);
+		INSERT INTO sqldb_integration_test (name) VALUES (?);
+		INSERT INTO sqldb_integration_test (name) VALUES (?);`
 }
 
 func (this *DDL) Parameters() []any {
@@ -92,7 +105,9 @@ type SelectAll struct {
 }
 
 func (this *SelectAll) Statement() string {
-	return QuerySelectAll
+	return `
+		SELECT id, name
+		  FROM sqldb_integration_test;`
 }
 
 func (this *SelectAll) Parameters() []any {
@@ -114,7 +129,7 @@ type SelectRow struct {
 }
 
 func (this *SelectRow) Statement() string {
-	return "SELECT name FROM sqldb_integration_test WHERE id = ?;"
+	return `SELECT name FROM sqldb_integration_test WHERE id = ?;`
 }
 func (this *SelectRow) Parameters() []any {
 	return []any{this.id}
