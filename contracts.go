@@ -15,6 +15,7 @@ type (
 
 	// Pool is a common subset of methods implemented by *sql.DB and *sql.Tx.
 	// The name is a nod to that fact that a *sql.DB implements a Pool of connections.
+	// TODO: perhaps un-export?
 	Pool interface {
 		PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
 		ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
@@ -31,6 +32,7 @@ type (
 	}
 
 	// Script represents SQL statements that aren't expected to provide rows as a result.
+	// TODO: perhaps un-export?
 	Script interface {
 		// Statements returns a string containing 1 or more SQL statements, separated by `;`.
 		// This means that the ';' character should NOT be used within any of the statements.
@@ -42,6 +44,7 @@ type (
 
 	// Query represents a SQL statement that is expected to provide rows as a result.
 	// Rows are fed to the Scan method.
+	// TODO: perhaps un-export?
 	Query interface {
 		// Statement returns a string containing a single SQL query.
 		Statement() string
