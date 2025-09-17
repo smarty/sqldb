@@ -26,7 +26,7 @@ INSERT INTO sqldb_integration_test (name) VALUES (?);
 INSERT INTO sqldb_integration_test (name) VALUES (?);
 INSERT INTO sqldb_integration_test (name) VALUES (?);
 `
-const query = `
+const QuerySelectAll = `
 SELECT id, name
   FROM sqldb_integration_test;
 `
@@ -38,16 +38,15 @@ func Test(t *testing.T) {
 	tx, err := db.BeginTx(t.Context(), nil)
 	gunit.So(t, err, better.BeNil)
 
-	count, err := sqldb.ExecuteStatements(t.Context(), tx, CreateInsert,
+	err = sqldb.ExecuteScript(t.Context(), tx, CreateInsert,
 		"a",
 		"b",
 		"c",
 		"d",
 	)
 	gunit.So(t, err, better.BeNil)
-	gunit.So(t, count, should.Equal, 4)
 
-	rows, err := tx.QueryContext(t.Context(), query)
+	rows, err := tx.QueryContext(t.Context(), QuerySelectAll)
 	gunit.So(t, err, should.BeNil)
 
 	records := map[int]string{}
@@ -64,6 +63,13 @@ func Test(t *testing.T) {
 		3: "c",
 		4: "d",
 	})
+
+	var id int
+	var value string
+	err = sqldb.ScanOptionalRow(tx.QueryRowContext(t.Context(), QuerySelectAll), &id, &value)
+	gunit.So(t, err, better.BeNil)
+	gunit.So(t, id, should.Equal, 1)
+	gunit.So(t, value, should.Equal, "a")
 
 	err = tx.Rollback()
 	gunit.So(t, err, better.BeNil)

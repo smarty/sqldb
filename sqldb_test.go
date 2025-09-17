@@ -23,13 +23,13 @@ type LoadFooName struct {
 }
 
 type Mapper struct {
-	db sqldb.DBTx
+	db sqldb.Handle
 }
 
-func (this Mapper) fooEstablished(ctx context.Context, operation FooEstablished) (uint64, error) {
-	return sqldb.ExecuteStatements(ctx, this.db, `
+func (this Mapper) fooEstablished(ctx context.Context, operation FooEstablished) error {
+	return sqldb.ExecuteScript(ctx, this.db, `
 		INSERT
-		  INTO Foos
+		  INTO Foo
 		       ( foo_id, created, foo_name )
 		VALUES ( ?, ?, '' )
 		    ON DUPLICATE KEY 
@@ -37,25 +37,26 @@ func (this Mapper) fooEstablished(ctx context.Context, operation FooEstablished)
 		operation.FooID, operation.Timestamp,
 	)
 }
-func (this Mapper) fooEstablished_Prepared(ctx context.Context, operation FooEstablished) (uint64, error) {
+func (this Mapper) fooEstablished_Prepared(ctx context.Context, operation FooEstablished) error {
 	statement, err := this.db.PrepareContext(ctx, `
 		INSERT
-		  INTO Foos
+		  INTO Foo
 		       ( foo_id, created, foo_name )
 		VALUES ( ?, ?, '' )
 		    ON DUPLICATE KEY 
 		UPDATE created = created;`,
 	)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return sqldb.RowsAffected(statement.ExecContext(ctx, operation.FooID, operation.Timestamp))
+	_, err = statement.ExecContext(ctx, operation.FooID, operation.Timestamp)
+	return err
 }
 
 func (this Mapper) loadFooName(ctx context.Context, operation *LoadFooName) error {
 	rows, err := this.db.QueryContext(ctx, `
 		SELECT foo_id, foo_name
-		  FROM Foos 
+		  FROM Foo
 		 WHERE foo_id = ?;`,
 		operation.FooID,
 	)
@@ -66,7 +67,7 @@ func (this Mapper) loadFooName(ctx context.Context, operation *LoadFooName) erro
 func (this Mapper) loadFooName_Prepared(ctx context.Context, operation *LoadFooName) error {
 	statement, err := this.db.PrepareContext(ctx, `
 		SELECT foo_id, foo_name
-		  FROM Foos 
+		  FROM Foo
 		 WHERE foo_id = ?;`,
 	)
 	if err != nil {

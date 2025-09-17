@@ -9,26 +9,10 @@ import (
 	"strings"
 )
 
-var ErrArgumentCountMismatch = errors.New("the number of arguments supplied does not match the statement")
-
-type Binder func(Scanner) error
-
-type Scanner interface {
-	Scan(...any) error
-}
-
-// DBTx is either a *sql.DB or a *sql.Tx
-type DBTx interface {
-	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
-	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
-}
-
-// BindOptionalRow receipts the *sql.Row, calls the binder (which probably calls
-// the row.Scan() method), and masks the result of sql.ErrNoRows.
-func BindOptionalRow(row *sql.Row, binder Binder) error {
-	err := binder(row)
+// ScanOptionalRow receipts the *sql.Row, feeds the supplied arguments to the
+// row.Scan() method and masks the result of sql.ErrNoRows.
+func ScanOptionalRow(row *sql.Row, args ...any) error {
+	err := row.Scan(args...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
 	}
@@ -38,13 +22,13 @@ func BindOptionalRow(row *sql.Row, binder Binder) error {
 // BindAll receives the *sql.Rows + error from the QueryContext method of either
 // a *sql.DB, a *sql.Tx, or a *sql.Stmt, as well as a binder callback, to be called
 // for each record, which gives the caller the opportunity to scan and aggregate values.
-func BindAll(rows *sql.Rows, err error, binder Binder) error {
+func BindAll(rows *sql.Rows, err error, scanner func(Scanner) error) error {
 	if err != nil {
 		return NormalizeErr(err)
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
-		err = binder(rows)
+		err = scanner(rows)
 		if err != nil {
 			return NormalizeErr(err)
 		}
@@ -52,42 +36,20 @@ func BindAll(rows *sql.Rows, err error, binder Binder) error {
 	return NormalizeErr(rows.Err())
 }
 
-// ExecuteStatements receives a *sql.DB or *sql.Tx as well as one or more SQL statements (separated by ';')
-// and executes each one with the arguments corresponding to that statement.
-func ExecuteStatements(ctx context.Context, db DBTx, statements string, args ...any) (count uint64, err error) {
+// ExecuteScript receives a Handle as well as one or more SQL statements (each ending in ';')
+// with corresponding args. IOt executes each statement with the arguments corresponding to it.
+func ExecuteScript(ctx context.Context, db Handle, statements string, args ...any) error {
 	placeholderCount := strings.Count(statements, "?")
 	if placeholderCount != len(args) {
-		return 0, fmt.Errorf("%w: Expected: %d, received %d", ErrArgumentCountMismatch, placeholderCount, len(args))
+		return fmt.Errorf("%w: Expected: %d, received %d", ErrParameterCountMismatch, placeholderCount, len(args))
 	}
-	index := 0
-	for statement := range strings.SplitSeq(statements, ";") {
-		if len(strings.TrimSpace(statement)) == 0 {
-			continue
-		}
-		statement += ";" // terminate the statement
-		indexOffset := strings.Count(statement, "?")
-		result, err := db.ExecContext(ctx, statement, args[index:index+indexOffset]...)
-		rows, err := RowsAffected(result, err)
+	for statement, params := range interleaveParameters(statements, args...) {
+		_, err := db.ExecContext(ctx, statement, params...)
 		if err != nil {
-			return 0, err // already normalized
+			return NormalizeErr(err)
 		}
-		count += rows
-		index += indexOffset
 	}
-	return count, nil
-}
-
-// RowsAffected returns the rows affected from a sql.Result. This is generally only needed
-// by external callers when dealing with the result of a prepared statement.
-func RowsAffected(result sql.Result, err error) (uint64, error) {
-	if err != nil {
-		return 0, NormalizeErr(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return 0, NormalizeErr(err)
-	}
-	return uint64(rows), nil
+	return nil
 }
 
 // NormalizeErr attaches a stack trace to non-nil errors and also normalizes errors that are
