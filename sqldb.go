@@ -59,9 +59,8 @@ func NormalizeErr(err error) error {
 	if err == nil {
 		return nil
 	}
-	err = fmt.Errorf("%w\nStack Trace:\n%s", err, string(debug.Stack()))
 	if strings.Contains(err.Error(), "operation was canceled") {
 		return fmt.Errorf("%w: %w", context.Canceled, err)
 	}
-	return err
+	return fmt.Errorf("%w\nStack Trace:\n%s", err, string(debug.Stack()))
 }
