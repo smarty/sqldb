@@ -127,7 +127,7 @@ func (this *defaultHandle) PopulateRow(ctx context.Context, query Query) (err er
 	return err
 }
 
-// interleaveParameters splits the statements (on ';') and pairs each one with its corresponding parameters.
+// interleaveParameters splits the statements (on ';') and yields each with its corresponding parameters.
 func interleaveParameters(statements string, parameters ...any) iter.Seq2[string, []any] {
 	return func(yield func(string, []any) bool) {
 		index := 0
