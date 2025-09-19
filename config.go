@@ -20,7 +20,7 @@ func (singleton) apply(options ...option) option {
 func (singleton) defaults(options ...option) []option {
 	return append([]option{
 		Options.Logger(&nop{}),
-		Options.PreparationThreshold(10),
+		Options.PreparationThreshold(1),
 	}, options...)
 }
 
