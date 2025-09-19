@@ -36,11 +36,12 @@ type (
 		// This means that the ';' character should NOT be used within any of the statements.
 		Statements() string
 
-		// Parameters returns a slice of the parameters to be interleaved across all sql returns by Statements().
+		// Parameters returns a slice of the parameters to be interleaved across all SQL
+		// returned from Statements().
 		Parameters() []any
 	}
 
-	// RowsAffected provides an (optional) hook for a type implemented Script to receive
+	// RowsAffected provides an (optional) hook for a type implementing Script to receive
 	// the number of rows affected by executing a statement provided by a Script. It is
 	// called for each statement that doesn't result in an error.
 	RowsAffected interface {
@@ -48,7 +49,7 @@ type (
 	}
 
 	// Query represents a SQL statement that is expected to provide rows as a result.
-	// Rows are fed to the Scan method.
+	// Rows are provided to the Scan method.
 	Query interface {
 		// Statement returns a string containing a single SQL query.
 		Statement() string
