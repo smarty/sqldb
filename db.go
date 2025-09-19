@@ -63,13 +63,19 @@ func (this *defaultHandle) Execute(ctx context.Context, script Script) (err erro
 		if err != nil {
 			return err
 		}
+		var result sql.Result
 		if prepared != nil {
-			_, err = prepared.ExecContext(ctx, params...)
+			result, err = prepared.ExecContext(ctx, params...)
 		} else {
-			_, err = this.pool.ExecContext(ctx, statement, params...)
+			result, err = this.pool.ExecContext(ctx, statement, params...)
 		}
 		if err != nil {
 			return err
+		}
+		if rows, ok := script.(RowsAffected); ok {
+			if affected, err := result.RowsAffected(); err == nil {
+				rows.RowsAffected(uint64(affected))
+			}
 		}
 	}
 	return nil

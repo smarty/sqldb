@@ -36,8 +36,10 @@ func (this *Fixture) Setup() {
 		sqldb.Options.Logger(log.New(this.Output(), this.Name()+": ", 0)),
 		sqldb.Options.PreparationThreshold(5),
 	)
-	err = this.DB.Execute(this.Context(), &DDL{})
+	ddl := &DDL{}
+	err = this.DB.Execute(this.Context(), ddl)
 	this.So(err, better.BeNil)
+	this.So(ddl.totalRows, should.Equal, 4)
 }
 func (this *Fixture) Teardown() {
 	this.So(this.tx.Rollback(), better.BeNil)
@@ -72,7 +74,9 @@ func (this *Fixture) TestQueryQueryRow_NoResult() {
 
 ///////////////////////////////////////////////
 
-type DDL struct{}
+type DDL struct {
+	totalRows uint64
+}
 
 func (this *DDL) Statements() string {
 	return `
@@ -88,7 +92,6 @@ func (this *DDL) Statements() string {
 		INSERT INTO sqldb_integration_test (name) VALUES (?);
 		INSERT INTO sqldb_integration_test (name) VALUES (?);`
 }
-
 func (this *DDL) Parameters() []any {
 	return []any{
 		"a",
@@ -96,6 +99,9 @@ func (this *DDL) Parameters() []any {
 		"c",
 		"d",
 	}
+}
+func (this *DDL) RowsAffected(rows uint64) {
+	this.totalRows += rows
 }
 
 ///////////////////////////////////////////////

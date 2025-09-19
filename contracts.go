@@ -42,6 +42,13 @@ type (
 		Parameters() []any
 	}
 
+	// RowsAffected provides an (optional) hook for a type implemented Script to receive
+	// the number of rows affected by executing a statement provided by a Script. It is
+	// called for each statement that doesn't result in an error.
+	RowsAffected interface {
+		RowsAffected(uint64)
+	}
+
 	// Query represents a SQL statement that is expected to provide rows as a result.
 	// Rows are fed to the Scan method.
 	// TODO: perhaps un-export?
