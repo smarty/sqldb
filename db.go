@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"iter"
 	"runtime/debug"
 	"strings"
@@ -14,8 +15,8 @@ type defaultHandle struct {
 	pool      Pool
 	logger    logger
 	threshold int
-	counts    map[string]int
-	prepared  map[string]*sql.Stmt
+	counts    map[uint64]int       // map[sql-statement-checksum]count
+	prepared  map[uint64]*sql.Stmt // map[sql-statement-checksum]stmt
 }
 
 func New(handle Pool, options ...option) Handle {
@@ -25,8 +26,8 @@ func New(handle Pool, options ...option) Handle {
 		pool:      handle,
 		logger:    config.logger,
 		threshold: config.threshold,
-		counts:    make(map[string]int),
-		prepared:  make(map[string]*sql.Stmt),
+		counts:    make(map[uint64]int),
+		prepared:  make(map[uint64]*sql.Stmt),
 	}
 }
 
@@ -34,11 +35,15 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 	if this.threshold < 0 {
 		return nil, nil
 	}
-	if this.counts[rawStatement] < this.threshold {
-		this.counts[rawStatement]++
+	if len(this.counts) > 1024*64 { // Put some kind of cap on how many statements we will track.
 		return nil, nil
 	}
-	statement, ok := this.prepared[rawStatement]
+	checksum := checksum([]byte(rawStatement))
+	if this.counts[checksum] < this.threshold {
+		this.counts[checksum]++
+		return nil, nil
+	}
+	statement, ok := this.prepared[checksum]
 	if ok {
 		return statement, nil
 	}
@@ -46,8 +51,13 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 	if err != nil {
 		return nil, err
 	}
-	this.prepared[rawStatement] = statement
+	this.prepared[checksum] = statement
 	return statement, nil
+}
+func checksum(x []byte) (hash uint64) {
+	h := fnv.New64a()
+	_, _ = h.Write(x)
+	return h.Sum64()
 }
 
 func (this *defaultHandle) Execute(ctx context.Context, script Script) (err error) {
