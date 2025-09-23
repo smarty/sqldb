@@ -60,81 +60,92 @@ func checksum(x []byte) (hash uint64) {
 	return h.Sum64()
 }
 
-func (this *defaultHandle) Execute(ctx context.Context, script Script) (err error) {
+func (this *defaultHandle) Execute(ctx context.Context, scripts ...Script) (err error) {
 	defer func() { err = normalizeErr(err) }()
-	statements := script.Statements()
-	parameters := script.Parameters()
-	placeholderCount := strings.Count(statements, "?")
-	if placeholderCount != len(parameters) {
-		return fmt.Errorf("%w: Expected: %d, received %d", ErrParameterCountMismatch, placeholderCount, len(parameters))
-	}
-	for statement, params := range interleaveParameters(statements, parameters...) {
-		prepared, err := this.prepare(ctx, statement)
-		if err != nil {
-			return err
+	for _, script := range scripts {
+		statements := script.Statements()
+		parameters := script.Parameters()
+		placeholderCount := strings.Count(statements, "?")
+		if placeholderCount != len(parameters) {
+			return fmt.Errorf("%w: Expected: %d, received %d", ErrParameterCountMismatch, placeholderCount, len(parameters))
 		}
-		var result sql.Result
-		if prepared != nil {
-			result, err = prepared.ExecContext(ctx, params...)
-		} else {
-			result, err = this.pool.ExecContext(ctx, statement, params...)
-		}
-		if err != nil {
-			return err
-		}
-		if rows, ok := script.(RowsAffected); ok {
-			if affected, err := result.RowsAffected(); err == nil {
-				rows.RowsAffected(uint64(affected))
+		for statement, params := range interleaveParameters(statements, parameters...) {
+			prepared, err := this.prepare(ctx, statement)
+			if err != nil {
+				return err
+			}
+			var result sql.Result
+			if prepared != nil {
+				result, err = prepared.ExecContext(ctx, params...)
+			} else {
+				result, err = this.pool.ExecContext(ctx, statement, params...)
+			}
+			if err != nil {
+				return err
+			}
+			if rows, ok := script.(RowsAffected); ok {
+				if affected, err := result.RowsAffected(); err == nil {
+					rows.RowsAffected(uint64(affected))
+				}
 			}
 		}
 	}
 	return nil
 }
-func (this *defaultHandle) Populate(ctx context.Context, query Query) (err error) {
+func (this *defaultHandle) Populate(ctx context.Context, queries ...Query) (err error) {
 	defer func() { err = normalizeErr(err) }()
-	statement := query.Statement()
-	prepared, err := this.prepare(ctx, statement)
-	if err != nil {
-		return err
-	}
-	parameters := query.Parameters()
-	var rows *sql.Rows
-	if prepared != nil {
-		rows, err = prepared.QueryContext(ctx, parameters...)
-	} else {
-		rows, err = this.pool.QueryContext(ctx, statement, parameters...)
-	}
-	if err != nil {
-		return err
-	}
-	defer func() { _ = rows.Close() }()
-	for rows.Next() {
-		err = query.Scan(rows)
+	for _, query := range queries {
+		statement := query.Statement()
+		prepared, err := this.prepare(ctx, statement)
 		if err != nil {
 			return err
 		}
+		parameters := query.Parameters()
+		var rows *sql.Rows
+		if prepared != nil {
+			rows, err = prepared.QueryContext(ctx, parameters...)
+		} else {
+			rows, err = this.pool.QueryContext(ctx, statement, parameters...)
+		}
+		if err != nil {
+			return err
+		}
+		for rows.Next() {
+			err = query.Scan(rows)
+			if err != nil {
+				_ = rows.Close()
+				return err
+			}
+		}
+		_ = rows.Close()
 	}
-	return rows.Err()
+	return nil
 }
-func (this *defaultHandle) PopulateRow(ctx context.Context, query Query) (err error) {
+func (this *defaultHandle) PopulateRow(ctx context.Context, queries ...Query) (err error) {
 	defer func() { err = normalizeErr(err) }()
-	statement := query.Statement()
-	prepared, err := this.prepare(ctx, statement)
-	if err != nil {
+	for _, query := range queries {
+		statement := query.Statement()
+		prepared, err := this.prepare(ctx, statement)
+		if err != nil {
+			return err
+		}
+		parameters := query.Parameters()
+		var row *sql.Row
+		if prepared != nil {
+			row = prepared.QueryRowContext(ctx, parameters...)
+		} else {
+			row = this.pool.QueryRowContext(ctx, statement, parameters...)
+		}
+		err = query.Scan(row)
+		if err == nil {
+			continue
+		}
+		if errors.Is(err, sql.ErrNoRows) {
+			continue
+		}
 		return err
 	}
-	parameters := query.Parameters()
-	var row *sql.Row
-	if prepared != nil {
-		row = prepared.QueryRowContext(ctx, parameters...)
-	} else {
-		row = this.pool.QueryRowContext(ctx, statement, parameters...)
-	}
-	err = query.Scan(row)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil
-	}
-	return err
+	return nil
 }
 
 // interleaveParameters splits the statements (on ';') and yields each with its corresponding parameters.

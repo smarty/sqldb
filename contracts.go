@@ -25,9 +25,9 @@ type (
 	// Handle is a high level approach to common database operations, where each operation implements either
 	// the Query or Script interface.
 	Handle interface {
-		Execute(ctx context.Context, script Script) error
-		Populate(ctx context.Context, query Query) error
-		PopulateRow(ctx context.Context, query Query) error
+		Execute(context.Context, ...Script) error
+		Populate(context.Context, ...Query) error
+		PopulateRow(context.Context, ...Query) error
 	}
 
 	// Script represents SQL statements that aren't expected to provide rows as a result.
