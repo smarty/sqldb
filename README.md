@@ -6,6 +6,14 @@
 [![GoDoc](https://godoc.org/github.com/smarty/sqldb?status.svg)](http://godoc.org/github.com/smarty/sqldb)
 
 
+## Purpose
+
+This module allows database operations to be expressed the high-level terms of a few key interfaces (`Script` and `Query`).
+
+By default, when the text of scripts and queries is seen multiple times we automatically transition to the use of prepared statements.
+
+See the test suite in the `integration/` folder for an example of the API.
+
 ## Upgrading from v2 to v3
 
 Those upgrading from v2 to v3 may be interested in the following code, which can be used to adapt write operations ('Scripts') to v3 while still using a v2-style interface:
