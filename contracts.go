@@ -6,7 +6,10 @@ import (
 	"errors"
 )
 
-var ErrParameterCountMismatch = errors.New("the number of parameters supplied does not match the statement")
+var (
+	ErrParameterCountMismatch           = errors.New("the number of parameters supplied does not match the statement")
+	ErrOptimisticConcurrencyCheckFailed = errors.New("optimistic concurrency check failed")
+)
 
 type (
 	logger interface {
@@ -46,6 +49,14 @@ type (
 	// called for each statement that doesn't result in an error.
 	RowsAffected interface {
 		RowsAffected(uint64)
+	}
+
+	// OptimisticConcurrencyCheck provides an (optional) hook for a type implementing
+	// Script to verify whether the total count of all rows affected matches the returned
+	// value. If not, an error wrapped with ErrOptimisticConcurrencyCheckFailed will be
+	// returned by Handle.Execute().
+	OptimisticConcurrencyCheck interface {
+		ExpectedRowsAffected() uint64
 	}
 
 	// Query represents a SQL statement that is expected to provide rows as a result.

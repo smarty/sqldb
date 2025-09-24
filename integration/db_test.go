@@ -46,6 +46,21 @@ func (this *Fixture) Teardown() {
 	this.So(this.db.Close(), better.BeNil)
 }
 
+func (this *Fixture) TestScript() {
+	script := &InsertOne{name: "foo", expectedRowsAffected: 1}
+	err := this.DB.Execute(this.Context(), script)
+	this.So(err, better.BeNil)
+	row := this.db.QueryRowContext(this.Context(), "select name from sqldb_integration_test where name = 'foo';")
+	var foo string
+	err = row.Scan(&foo)
+	this.So(err, better.BeNil)
+	this.So(foo, should.Equal, "foo")
+}
+func (this *Fixture) TestScript_OptimisticConcurrencyCheckFailure() {
+	script := &InsertOne{name: "foo", expectedRowsAffected: 2}
+	err := this.DB.Execute(this.Context(), script)
+	this.So(err, should.WrapError, sqldb.ErrOptimisticConcurrencyCheckFailed)
+}
 func (this *Fixture) TestQuery() {
 	for range 10 { // should transition to prepared statements
 		query := &SelectAll{Result: make(map[int]string)}
@@ -70,6 +85,23 @@ func (this *Fixture) TestQueryQueryRow_NoResult() {
 	err := this.DB.PopulateRow(this.Context(), query)
 	this.So(err, better.BeNil)
 	this.So(query.value, should.BeEmpty)
+}
+
+///////////////////////////////////////////////
+
+type InsertOne struct {
+	expectedRowsAffected uint64
+	name                 string
+}
+
+func (this *InsertOne) Statements() string {
+	return "INSERT INTO sqldb_integration_test (name) VALUES (?);"
+}
+func (this *InsertOne) Parameters() []any {
+	return []any{this.name}
+}
+func (this *InsertOne) ExpectedRowsAffected() uint64 {
+	return this.expectedRowsAffected
 }
 
 ///////////////////////////////////////////////

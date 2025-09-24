@@ -69,6 +69,7 @@ func (this *defaultHandle) Execute(ctx context.Context, scripts ...Script) (err 
 		if placeholderCount != len(parameters) {
 			return fmt.Errorf("%w: Expected: %d, received %d", ErrParameterCountMismatch, placeholderCount, len(parameters))
 		}
+		var actualRowsAffectedCount uint64
 		for statement, params := range interleaveParameters(statements, parameters...) {
 			prepared, err := this.prepare(ctx, statement)
 			if err != nil {
@@ -83,10 +84,22 @@ func (this *defaultHandle) Execute(ctx context.Context, scripts ...Script) (err 
 			if err != nil {
 				return err
 			}
+			affected, err := result.RowsAffected()
+			if err != nil {
+				return err
+			}
+			rowCount := uint64(max(0, affected))
+			actualRowsAffectedCount += rowCount
 			if rows, ok := script.(RowsAffected); ok {
-				if affected, err := result.RowsAffected(); err == nil {
-					rows.RowsAffected(uint64(affected))
-				}
+				rows.RowsAffected(rowCount)
+			}
+		}
+		if check, ok := script.(OptimisticConcurrencyCheck); ok {
+			expectedRowsAffectedCount := check.ExpectedRowsAffected()
+			if actualRowsAffectedCount != expectedRowsAffectedCount {
+				return fmt.Errorf("%w: expected rows affected: %d (actual: %d)",
+					ErrOptimisticConcurrencyCheckFailed, expectedRowsAffectedCount, actualRowsAffectedCount,
+				)
 			}
 		}
 	}
