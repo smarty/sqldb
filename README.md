@@ -28,13 +28,13 @@ import (
 )
 
 // Deprecated
-type LegacyExecutor interface {
+type LegacyAdapter interface {
 	BindSelect(context.Context, func(sqldb.Scanner) error, string, ...any) error
 	Execute(context.Context, string, ...any) (uint64, error)
 }
 
 // Deprecated
-func newLegacyExecutor(handle sqldb.Pool) LegacyExecutor {
+func newLegacyAdapter(handle sqldb.Pool) LegacyAdapter {
 	return &legacyExecutor{handle: sqldb.New(handle)}
 }
 
