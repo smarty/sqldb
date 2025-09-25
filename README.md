@@ -16,10 +16,10 @@ See the test suite in the `integration/` folder for an example of the API.
 
 ## Upgrading from v2 to v3
 
-Those upgrading from v2 to v3 may be interested in the following code, which can be used to adapt write operations ('Scripts') to v3 while still using a v2-style interface:
+Those upgrading from v2 to v3 may be interested in the following code, which can be used to adapt database operations to v3 while still using a v2-style interface:
 
 ```go
-package mysql
+package whatever
 
 import (
 	"context"
@@ -29,17 +29,26 @@ import (
 
 // Deprecated
 type LegacyExecutor interface {
+	BindSelect(context.Context, func(sqldb.Scanner) error, string, ...any) error
 	Execute(context.Context, string, ...any) (uint64, error)
 }
 
 // Deprecated
-func newLegacyExecutor(handle sqldb.Handle) LegacyExecutor {
-	return &legacyExecutor{handle: handle}
+func newLegacyExecutor(handle sqldb.Pool) LegacyExecutor {
+	return &legacyExecutor{handle: sqldb.New(handle)}
 }
 
 // Deprecated
 type legacyExecutor struct {
 	handle sqldb.Handle
+}
+
+// Deprecated
+func (this *legacyExecutor) BindSelect(ctx context.Context, binder func(sqldb.Scanner) error, query string, args ...any) error {
+	return this.handle.Populate(ctx, &bindingScript{
+		BaseQuery: sqldb.BaseQuery{Text: query, Args: args},
+		binder:    binder,
+	})
 }
 
 // Deprecated
@@ -52,6 +61,16 @@ func (this *legacyExecutor) Execute(ctx context.Context, statement string, args 
 	}
 	err := this.handle.Execute(ctx, script)
 	return script.rowsAffectedCount, err
+}
+
+// Deprecated
+type bindingScript struct {
+	sqldb.BaseQuery
+	binder func(sqldb.Scanner) error
+}
+
+func (this *bindingScript) Scan(scanner sqldb.Scanner) error {
+	return this.binder(scanner)
 }
 
 // Deprecated
