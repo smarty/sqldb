@@ -9,12 +9,14 @@ import (
 	"iter"
 	"runtime/debug"
 	"strings"
+	"sync"
 )
 
 type defaultHandle struct {
 	pool      Pool
 	logger    logger
 	threshold int
+	lock      *sync.Mutex
 	counts    map[uint64]int       // map[sql-statement-checksum]count
 	prepared  map[uint64]*sql.Stmt // map[sql-statement-checksum]stmt
 }
@@ -26,6 +28,7 @@ func New(handle Pool, options ...option) Handle {
 		pool:      handle,
 		logger:    config.logger,
 		threshold: config.threshold,
+		lock:      new(sync.Mutex),
 		counts:    make(map[uint64]int),
 		prepared:  make(map[uint64]*sql.Stmt),
 	}
@@ -38,6 +41,8 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 	if len(this.counts) > 1024*64 { // Put some kind of cap on how many statements we will track.
 		return nil, nil
 	}
+	this.lock.Lock()
+	defer this.lock.Unlock()
 	checksum := checksum([]byte(rawStatement))
 	if this.counts[checksum] < this.threshold {
 		this.counts[checksum]++
