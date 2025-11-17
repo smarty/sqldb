@@ -5,9 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"hash"
 	"hash/fnv"
-	"io"
 	"iter"
 	"runtime/debug"
 	"strings"
@@ -18,7 +16,6 @@ type defaultHandle struct {
 	pool      Pool
 	logger    logger
 	threshold int
-	hasher    hash.Hash64
 	lock      *sync.Mutex
 	counts    map[uint64]int       // map[sql-statement-checksum]count
 	prepared  map[uint64]*sql.Stmt // map[sql-statement-checksum]stmt
@@ -31,7 +28,6 @@ func New(handle Pool, options ...option) Handle {
 		pool:      handle,
 		logger:    config.logger,
 		threshold: config.threshold,
-		hasher:    fnv.New64a(),
 		lock:      new(sync.Mutex),
 		counts:    make(map[uint64]int),
 		prepared:  make(map[uint64]*sql.Stmt),
@@ -47,9 +43,7 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 	}
 	this.lock.Lock()
 	defer this.lock.Unlock()
-	this.hasher.Reset()
-	_, _ = io.WriteString(this.hasher, rawStatement)
-	checksum := this.hasher.Sum64()
+	checksum := checksum([]byte(rawStatement))
 	if this.counts[checksum] < this.threshold {
 		this.counts[checksum]++
 		return nil, nil
@@ -64,6 +58,11 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 	}
 	this.prepared[checksum] = statement
 	return statement, nil
+}
+func checksum(x []byte) (hash uint64) {
+	h := fnv.New64a()
+	_, _ = h.Write(x)
+	return h.Sum64()
 }
 
 func (this *defaultHandle) Execute(ctx context.Context, scripts ...Script) (err error) {
