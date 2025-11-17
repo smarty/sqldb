@@ -16,7 +16,7 @@ type defaultHandle struct {
 	pool      Pool
 	logger    logger
 	threshold int
-	lock      *sync.Mutex
+	lock      *sync.RWMutex
 	prepared  map[uint64]*sql.Stmt // map[sql-statement-checksum]stmt
 }
 
@@ -27,7 +27,7 @@ func New(handle Pool, options ...option) Handle {
 		pool:      handle,
 		logger:    config.logger,
 		threshold: config.threshold,
-		lock:      new(sync.Mutex),
+		lock:      new(sync.RWMutex),
 		prepared:  make(map[uint64]*sql.Stmt),
 	}
 }
@@ -39,17 +39,17 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 
 	checksum := computeChecksum([]byte(rawStatement))
 
-	this.lock.Lock()
+	this.lock.RLock()
 	statement, ok := this.prepared[checksum]
-	this.lock.Unlock()
+	this.lock.RUnlock()
 
 	if ok {
 		return statement, nil
 	}
 
-	this.lock.Lock()
+	this.lock.RLock()
 	countPrepared := len(this.prepared)
-	this.lock.Unlock()
+	this.lock.RUnlock()
 
 	if countPrepared > 1024*64 { // Put some kind of cap on how many statements we will track.
 		return nil, nil
