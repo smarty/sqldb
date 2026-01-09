@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
 
 test: fmt
-	GORACE="atexit_sleep_ms=50" go test -timeout=1s -race -covermode=atomic ./...
-	GORACE="atexit_sleep_ms=50" go test github.com/smarty/sqldb/integration
+	go test -timeout=1s -race -covermode=atomic ./...
+	go test github.com/smarty/sqldb/integration
 
 fmt:
 	go mod tidy && go fmt ./...
