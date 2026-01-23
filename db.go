@@ -17,6 +17,7 @@ type defaultHandle struct {
 	logger    logger
 	threshold int
 	lock      *sync.RWMutex
+	counts    map[uint64]int       // map[sql-statement-checksum]execution-count
 	prepared  map[uint64]*sql.Stmt // map[sql-statement-checksum]stmt
 }
 
@@ -28,6 +29,7 @@ func New(handle Pool, options ...option) Handle {
 		logger:    config.logger,
 		threshold: config.threshold,
 		lock:      new(sync.RWMutex),
+		counts:    make(map[uint64]int),
 		prepared:  make(map[uint64]*sql.Stmt),
 	}
 }
@@ -45,6 +47,15 @@ func (this *defaultHandle) prepare(ctx context.Context, rawStatement string) (*s
 
 	if ok {
 		return statement, nil
+	}
+
+	this.lock.Lock()
+	this.counts[checksum]++
+	count := this.counts[checksum]
+	this.lock.Unlock()
+
+	if count <= this.threshold {
+		return nil, nil
 	}
 
 	this.lock.RLock()
